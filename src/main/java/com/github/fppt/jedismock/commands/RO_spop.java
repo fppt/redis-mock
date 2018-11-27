@@ -32,7 +32,7 @@ class RO_spop extends AbstractRedisOperation {
         Iterator<Slice> it = set.iterator();
         Slice v = it.next();
         it.remove();
-        base().putValue(key, serializeObject(set), -1L);
+        base().putValue(key, serializeObject(set));
         return Response.bulkString(v);
     }
 }

@@ -33,7 +33,7 @@ abstract class RO_push extends AbstractRedisOperation {
             pusher(list, params().get(i));
         }
         try {
-            base().putValue(key, serializeObject(list), -1L);
+            base().putValue(key, serializeObject(list));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

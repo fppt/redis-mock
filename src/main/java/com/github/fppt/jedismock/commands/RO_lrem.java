@@ -48,7 +48,7 @@ class RO_lrem extends AbstractRedisOperation {
             }
         }
 
-        base().putValue(key, serializeObject(list), -1L);
+        base().putValue(key, serializeObject(list));
 
         return Response.integer(numRemoved);
     }

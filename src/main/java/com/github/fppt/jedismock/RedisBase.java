@@ -66,6 +66,10 @@ public class RedisBase {
         syncBases.clear();
     }
 
+    public void putValue(Slice key, Slice value){
+        putValue(key, value, -1L);
+    }
+
     public void putValue(Slice key, Slice value, Long ttl) {
         keyValueStorage.put(key, value, ttl);
         syncBases((base) -> base.putValue(key, value, ttl));

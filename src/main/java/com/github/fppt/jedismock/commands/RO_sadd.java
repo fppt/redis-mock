@@ -31,7 +31,7 @@ class RO_sadd extends AbstractRedisOperation {
             set.add(params().get(i));
         }
         try {
-            base().putValue(key, serializeObject(set), -1L);
+            base().putValue(key, serializeObject(set));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

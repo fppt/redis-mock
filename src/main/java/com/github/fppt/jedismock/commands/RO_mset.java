@@ -13,7 +13,7 @@ class RO_mset extends AbstractRedisOperation {
 
     Slice response() {
         for (int i = 0; i < params().size(); i += 2) {
-            base().putValue(params().get(i), params().get(i + 1), -1L);
+            base().putValue(params().get(i), params().get(i + 1));
         }
         return Response.OK;
     }

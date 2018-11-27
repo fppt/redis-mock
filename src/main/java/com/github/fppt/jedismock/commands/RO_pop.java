@@ -31,7 +31,7 @@ abstract class RO_pop extends AbstractRedisOperation {
             return Response.NULL;
         }
         Slice v = popper(list);
-        base().putValue(key, serializeObject(list), -1L);
+        base().putValue(key, serializeObject(list));
         return Response.bulkString(v);
     }
 }

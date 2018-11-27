@@ -39,7 +39,7 @@ class RO_pfmerge extends AbstractRedisOperation {
 
         Slice out = serializeObject(set);
         if (first) {
-            base().putValue(key, out, -1L);
+            base().putValue(key, out);
         } else {
             base().putValue(key, out, null);
         }
