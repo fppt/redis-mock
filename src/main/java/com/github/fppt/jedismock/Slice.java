@@ -10,6 +10,7 @@ public class Slice implements Comparable<Slice>, Serializable {
     private static final long serialVersionUID = 247772234876073528L;
 
     private final byte[] data;
+    //wat
 
     public Slice(byte[] data) {
         this.data = data.clone();
