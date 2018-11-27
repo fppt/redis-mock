@@ -146,10 +146,10 @@ public class RedisOperationExecutor {
             return constructor.newInstance(base, params);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
+            throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name), e);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException | IllegalArgumentException e) {
             e.printStackTrace();
-            throw new UnsupportedOperationException(String.format("Error initialising operation '%s'", name));
+            throw new UnsupportedOperationException(String.format("Error initialising operation '%s'", name), e);
         }
     }
 
