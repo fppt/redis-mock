@@ -41,10 +41,10 @@ public class ComparisonBase {
         Jedis[] jedis = new Jedis[2];
 
         //Create real jedis connection
-        jedis[0] = new Jedis("localhost", EmbeddedRedis.PORT);
+        jedis[1] = new Jedis("localhost", EmbeddedRedis.PORT);
 
         //Create mocked jedis connection
-        jedis[1] = new Jedis(fakeServer.getHost(), fakeServer.getBindPort(), 1000000);
+        jedis[0] = new Jedis(fakeServer.getHost(), fakeServer.getBindPort(), 1000000);
 
         return jedis;
     }
