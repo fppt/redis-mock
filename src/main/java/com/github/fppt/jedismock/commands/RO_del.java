@@ -15,7 +15,7 @@ class RO_del extends AbstractRedisOperation {
         int count = 0;
         for (Slice key : params()) {
             Slice value = base().getValue(key);
-            base().del(key);
+            base().deleteValue(key);
             if (value != null) {
                 count++;
             }

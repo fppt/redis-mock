@@ -1,7 +1,6 @@
 package com.github.fppt.jedismock.comparisontests;
 
 
-import org.junit.Ignore;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -230,16 +229,16 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.hget(hash, field));
     }
 
-    @Ignore
     @Theory
     public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis){
-        String field = "my-field";
-        String hash = "my-hash";
-        String value = "my-value";
+        String field = "my-field-2";
+        String hash = "my-hash-2";
+        String value = "my-value-2";
 
+        assertEquals(new Long(0L), jedis.hdel(hash, field));
         jedis.hset(hash, field, value);
         assertEquals(value, jedis.hget(hash, field));
-        jedis.hdel(hash, field);
+        assertEquals(new Long(1L), jedis.hdel(hash, field));
         assertNull(jedis.hget(hash, field));
     }
 }

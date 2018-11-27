@@ -255,7 +255,7 @@ public class TestRedisOperationExecutor {
     public void testDel() throws ParseErrorException, EOFException {
         assertCommandOK(array("set", "a", "v"));
         assertCommandOK(array("set", "b", "v"));
-        assertCommandEquals(2, array("del", "a", "b", "c"));
+        assertCommandEquals(2, array("deleteValue", "a", "b", "c"));
         assertCommandNull(array("get", "a"));
         assertCommandNull(array("get", "b"));
     }

@@ -80,9 +80,14 @@ public class RedisBase {
         syncBases((base) -> base.putValue(key1, key2, value, ttl));
     }
 
-    public void del(Slice key) {
+    public void deleteValue(Slice key) {
         keyValueStorage.delete(key);
-        syncBases((base) -> base.del(key));
+        syncBases((base) -> base.deleteValue(key));
+    }
+
+    public void deleteValue(Slice key1, Slice key2) {
+        keyValueStorage.delete(key1, key2);
+        syncBases((base) -> base.deleteValue(key1, key2));
     }
 
     public void addSubscriber(Slice channel, RedisClient client){
