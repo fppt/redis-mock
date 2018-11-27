@@ -10,8 +10,11 @@ import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import com.google.common.base.Preconditions;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Xiaolu on 2015/4/20.
@@ -30,8 +33,8 @@ public class RedisOperationExecutor {
         transaction = new ArrayList<>();
     }
 
-    private RedisOperation buildSimpleOperation(String name, List<Slice> params){
-        switch(name){
+    private RedisOperation buildRedisOperation(String name, List<Slice> params){
+        /*switch(name){
             case "set":
                 return new RO_set(base, params);
             case "setex":
@@ -133,12 +136,33 @@ public class RedisOperationExecutor {
                 return new RO_spop(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
+        }*/
+
+        try {
+            String className = this.getClass().getPackage().getName() + ".RO_" + name;
+            Class<?> clazz = Class.forName(className);
+            @SuppressWarnings("unchecked")
+            Constructor<RedisOperation> constructor = (Constructor<RedisOperation>) clazz.getDeclaredConstructors()[0];
+            return constructor.newInstance(base, params);
+        } catch (ClassNotFoundException e) {
+            throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException | IllegalArgumentException e) {
+            throw new UnsupportedOperationException(String.format("Error initialising operation '%s'", name));
         }
+    }
+
+    private Optional<RedisOperation> buildMetaOperation(String name, List<Slice> params){
+        if(name.equals("exec")){
+            transactionModeOn = false;
+            return Optional.of(new RO_exec(base, transaction, params));
+        } else if (name.equals("quit")){
+            return Optional.of(new RO_quit(base, owner, params));
+        }
+        return Optional.empty();
     }
 
     public synchronized Slice execCommand(RedisCommand command) {
         Preconditions.checkArgument(command.getParameters().size() > 0);
-
         List<Slice> params = command.getParameters();
         List<Slice> commandParams = params.subList(1, params.size());
         String name = new String(params.get(0).data()).toLowerCase();
@@ -150,8 +174,10 @@ public class RedisOperationExecutor {
                 return Response.clientResponse(name, Response.OK);
             }
 
+            RedisOperation redisOperation = buildMetaOperation(name, commandParams).
+                    orElseGet(() -> buildRedisOperation(name, commandParams));
+
             //Checking if we mutating the transaction or the base
-            RedisOperation redisOperation = buildSimpleOperation(name, commandParams);
             if(transactionModeOn){
                 transaction.add(redisOperation);
             } else {
