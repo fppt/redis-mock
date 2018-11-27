@@ -5,10 +5,6 @@ package com.github.fppt.jedismock.exception;
  */
 public class WrongValueTypeException extends RuntimeException {
 
-    public WrongValueTypeException() {
-        super();
-    }
-
     public WrongValueTypeException(String message) {
         super(message);
     }

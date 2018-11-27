@@ -13,7 +13,7 @@ class RO_ping extends AbstractRedisOperation {
 
     Slice response() {
         if (params().isEmpty()){
-            return Response.bulkString(new Slice("PONG"));
+            return Response.bulkString(Slice.create("PONG"));
         }
 
         return Response.bulkString(params().get(0));

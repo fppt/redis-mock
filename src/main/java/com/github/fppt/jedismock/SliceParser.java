@@ -69,7 +69,7 @@ public class SliceParser {
                 throw new ParseErrorException();
             }
         }
-        return new Slice(bo.toByteArray());
+        return Slice.create(bo.toByteArray());
     }
 
     @VisibleForTesting

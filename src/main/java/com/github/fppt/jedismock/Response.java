@@ -14,29 +14,29 @@ public class Response {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Response.class);
     private static final String LINE_SEPARATOR = "\r\n";
 
-    public static final Slice OK = new Slice("+OK" + LINE_SEPARATOR);
-    public static final Slice NULL = new Slice("$-1" + LINE_SEPARATOR);
-    public static final Slice SKIP = new Slice("Skip this submission");
+    public static final Slice OK = Slice.create("+OK" + LINE_SEPARATOR);
+    public static final Slice NULL = Slice.create("$-1" + LINE_SEPARATOR);
+    public static final Slice SKIP = Slice.create("Skip this submission");
 
     private Response() {}
 
-    public static Slice bulkString(Slice s) {
-        if (s == null) {
+    public static Slice bulkString(Slice slice) {
+        if (slice == null) {
             return NULL;
         }
         ByteArrayDataOutput bo = ByteStreams.newDataOutput();
-        bo.write(String.format("$%d%s", s.length(), LINE_SEPARATOR).getBytes());
-        bo.write(s.data());
+        bo.write(String.format("$%d%s", slice.data().length, LINE_SEPARATOR).getBytes());
+        bo.write(slice.data());
         bo.write(LINE_SEPARATOR.getBytes());
-        return new Slice(bo.toByteArray());
+        return Slice.create(bo.toByteArray());
     }
 
     public static Slice error(String s) {
-        return new Slice(String.format("-%s%s", s, LINE_SEPARATOR));
+        return Slice.create(String.format("-%s%s", s, LINE_SEPARATOR));
     }
 
     public static Slice integer(long v) {
-        return new Slice(String.format(":%d%s", v, LINE_SEPARATOR));
+        return Slice.create(String.format(":%d%s", v, LINE_SEPARATOR));
     }
 
     public static Slice array(List<Slice> values) {
@@ -45,7 +45,7 @@ public class Response {
         for (Slice value : values) {
             bo.write(value.data());
         }
-        return new Slice(bo.toByteArray());
+        return Slice.create(bo.toByteArray());
     }
 
     public static Slice publishedMessage(Slice channel, Slice message){

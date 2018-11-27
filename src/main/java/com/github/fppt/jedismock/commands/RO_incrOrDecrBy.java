@@ -20,12 +20,12 @@ abstract class RO_incrOrDecrBy extends AbstractRedisOperation {
         long d = incrementOrDecrementValue(params());
         Slice v = base().rawGet(key);
         if (v == null) {
-            base().rawPut(key, new Slice(String.valueOf(d)), -1L);
+            base().rawPut(key, Slice.create(String.valueOf(d)), -1L);
             return Response.integer(d);
         }
 
         long r = convertToLong(new String(v.data())) + d;
-        base().rawPut(key, new Slice(String.valueOf(r)), -1L);
+        base().rawPut(key, Slice.create(String.valueOf(r)), -1L);
         return Response.integer(r);
     }
 }

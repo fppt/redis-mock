@@ -26,7 +26,7 @@ class RO_append extends AbstractRedisOperation {
         for (int i = s.length(); i < s.length() + value.length(); i++) {
             b[i] = value.data()[i - s.length()];
         }
-        base().rawPut(key, new Slice(b), -1L);
+        base().rawPut(key, Slice.create(b), -1L);
         return Response.integer(b.length);
     }
 }

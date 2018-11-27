@@ -46,7 +46,7 @@ public class Utils {
             ByteArrayOutputStream bo = new ByteArrayOutputStream();
             ObjectOutputStream oo = new ObjectOutputStream(bo);
             oo.writeObject(o);
-            Slice encode = new Slice(bo.toByteArray());
+            Slice encode = Slice.create(bo.toByteArray());
             oo.close();
             bo.close();
             return encode;

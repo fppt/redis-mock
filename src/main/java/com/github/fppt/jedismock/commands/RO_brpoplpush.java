@@ -44,7 +44,7 @@ class RO_brpoplpush extends RO_rpoplpush {
     }
 
     private long getCount(Slice source){
-        Slice index = new Slice("0");
+        Slice index = Slice.create("0");
         List<Slice> commands = Arrays.asList(source, index, index);
         Slice result = new RO_lrange(base(), commands).execute();
         return SliceParser.consumeCount(result.data());

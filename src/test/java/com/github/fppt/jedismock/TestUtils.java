@@ -44,25 +44,25 @@ public class TestUtils {
 
     @Test
     public void testCheckArgumentsNumberEquals() {
-        List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""));
+        List<Slice> args = Lists.newArrayList(Slice.create(""), Slice.create(""));
         assertArgumentCheckThrowsException(Utils::checkArgumentsNumberEquals, args, 2, 1);
     }
 
     @Test
     public void testCheckArgumentsNumberGreater() {
-        List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""));
+        List<Slice> args = Lists.newArrayList(Slice.create(""), Slice.create(""));
         assertArgumentCheckThrowsException(Utils::checkArgumentsNumberGreater, args, 1, 2);
     }
 
     @Test
     public void testCheckArgumentsNumberFactor() {
-        List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""), new Slice(""));
+        List<Slice> args = Lists.newArrayList(Slice.create(""), Slice.create(""), Slice.create(""));
         assertArgumentCheckThrowsException(Utils::checkArgumentsNumberFactor, args, 1, 2);
     }
 
     @Test
     public void testSerializeAndDeserialize() {
-        Slice a = new Slice("abcdef");
+        Slice a = Slice.create("abcdef");
         Slice b = Utils.deserializeObject(Utils.serializeObject(a));
         assertArrayEquals(a.data(), b.data());
     }
