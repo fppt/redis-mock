@@ -1,19 +1,19 @@
 package com.github.fppt.jedismock;
 
+import com.google.auto.value.AutoValue;
+
 /**
  * Created by Xiaolu on 2015/4/22.
  */
-public class ServiceOptions {
+@AutoValue
+public abstract class ServiceOptions {
+    public abstract int autoCloseOn();
 
-    private int closeSocketAfterSeveralCommands = 0;
-
-    public ServiceOptions() {}
-
-    public void setCloseSocketAfterSeveralCommands(int count) {
-        this.closeSocketAfterSeveralCommands = count;
+    public static ServiceOptions defaultOptions() {
+        return new AutoValue_ServiceOptions(0);
     }
 
-    public int getCloseSocketAfterSeveralCommands() {
-        return closeSocketAfterSeveralCommands;
+    public static ServiceOptions create(int autoCloseOn) {
+        return new AutoValue_ServiceOptions(autoCloseOn);
     }
 }

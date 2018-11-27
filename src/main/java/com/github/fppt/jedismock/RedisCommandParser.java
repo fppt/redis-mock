@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock;
 
-import com.github.fppt.jedismock.exception.EOFException;
 import com.github.fppt.jedismock.exception.ParseErrorException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;

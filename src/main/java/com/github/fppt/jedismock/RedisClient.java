@@ -48,8 +48,7 @@ public class RedisClient implements Runnable {
                 sendResponse(response, command.toString());
 
                 count++;
-                if (options.getCloseSocketAfterSeveralCommands() != 0
-                        && options.getCloseSocketAfterSeveralCommands() == count) {
+                if (options.autoCloseOn() != 0 && options.autoCloseOn() == count) {
                     break;
                 }
             }

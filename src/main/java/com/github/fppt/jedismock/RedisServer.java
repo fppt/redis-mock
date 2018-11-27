@@ -11,7 +11,7 @@ import java.net.ServerSocket;
 public class RedisServer {
 
     private final int bindPort;
-    private ServiceOptions options = new ServiceOptions();
+    private ServiceOptions options = ServiceOptions.defaultOptions();
     private ServerSocket server = null;
     private Thread service = null;
     private final RedisBase base = new RedisBase();

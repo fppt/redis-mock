@@ -24,14 +24,14 @@ public class TestRedisServer {
     }
 
     @Test
-    public void testBindRandomPort() throws IOException, InterruptedException {
+    public void testBindRandomPort() throws IOException {
         RedisServer server = RedisServer.newRedisServer();
         server.start();
         server.stop();
     }
 
     @Test
-    public void testBindErrorPort() throws IOException, InterruptedException {
+    public void testBindErrorPort() throws IOException {
         RedisServer server = RedisServer.newRedisServer(100000);
         try {
             server.start();
@@ -42,7 +42,7 @@ public class TestRedisServer {
     }
 
     @Test
-    public void testBindUsedPort() throws IOException, InterruptedException {
+    public void testBindUsedPort() throws IOException {
         RedisServer server1 = RedisServer.newRedisServer();
         server1.start();
         RedisServer server2 = RedisServer.newRedisServer(server1.getBindPort());
@@ -130,8 +130,7 @@ public class TestRedisServer {
     @Test
     public void testCloseSocket() throws IOException {
         RedisServer server = RedisServer.newRedisServer();
-        ServiceOptions options = new ServiceOptions();
-        options.setCloseSocketAfterSeveralCommands(3);
+        ServiceOptions options = ServiceOptions.create(3);
         server.setOptions(options);
         server.start();
         Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
