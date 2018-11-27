@@ -67,9 +67,9 @@ public class TestCommandParser {
     @Test
     public void testParse() throws ParseErrorException, EOFException {
         RedisCommand cmd = RedisCommandParser.parse("*3\r\n$0\r\n\r\n$4\r\nabcd\r\n$2\r\nef\r\n");
-        assertEquals(cmd.getParameters().get(0).toString(), "");
-        assertEquals(cmd.getParameters().get(1).toString(), "abcd");
-        assertEquals(cmd.getParameters().get(2).toString(), "ef");
+        assertEquals(cmd.parameters().get(0).toString(), "");
+        assertEquals(cmd.parameters().get(1).toString(), "abcd");
+        assertEquals(cmd.parameters().get(2).toString(), "ef");
     }
 
     @Test

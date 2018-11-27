@@ -13,24 +13,23 @@ import java.io.InputStream;
  */
 public class RedisCommandParser {
 
-
     @VisibleForTesting
-    static RedisCommand parse(String stringInput) throws ParseErrorException, EOFException {
+    static RedisCommand parse(String stringInput) throws ParseErrorException {
         Preconditions.checkNotNull(stringInput);
 
         return parse(new ByteArrayInputStream(stringInput.getBytes()));
     }
 
-    static RedisCommand parse(InputStream messageInput) throws ParseErrorException, EOFException {
+    static RedisCommand parse(InputStream messageInput) throws ParseErrorException {
         Preconditions.checkNotNull(messageInput);
 
         long count = SliceParser.consumeCount(messageInput);
         if (count == 0) {
             throw new ParseErrorException();
         }
-        RedisCommand command = new RedisCommand();
+        RedisCommand command = RedisCommand.create();
         for (long i = 0; i < count; i++) {
-            command.addParameter(SliceParser.consumeParameter(messageInput));
+            command.parameters().add(SliceParser.consumeParameter(messageInput));
         }
         return command;
     }

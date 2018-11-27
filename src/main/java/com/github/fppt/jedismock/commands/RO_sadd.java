@@ -3,7 +3,6 @@ package com.github.fppt.jedismock.commands;
 import com.github.fppt.jedismock.RedisBase;
 import com.github.fppt.jedismock.Response;
 import com.github.fppt.jedismock.Slice;
-import com.github.fppt.jedismock.exception.InternalException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +33,7 @@ class RO_sadd extends AbstractRedisOperation {
         try {
             base().rawPut(key, serializeObject(set), -1L);
         } catch (Exception e) {
-            throw new InternalException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         return Response.integer(set.size());
     }

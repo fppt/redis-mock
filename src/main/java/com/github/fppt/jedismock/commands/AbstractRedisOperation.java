@@ -20,6 +20,7 @@ abstract class AbstractRedisOperation implements RedisOperation {
     }
 
     void doOptionalWork(){
+        //Place Holder For Ops which need to so some operational work
     }
 
     abstract Slice response();

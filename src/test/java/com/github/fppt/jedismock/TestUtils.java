@@ -1,27 +1,31 @@
 package com.github.fppt.jedismock;
 
-import com.github.fppt.jedismock.exception.WrongNumberOfArgumentsException;
 import com.google.common.collect.Lists;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.function.BiConsumer;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Xiaolu on 2015/4/20.
  */
 public class TestUtils {
 
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
     @Test
-    public void testCloseQuietly() throws IOException {
+    public void testCloseQuietly() {
         Utils.closeQuietly(null);
         Utils.closeQuietly(new InputStream() {
             @Override
-            public int read() throws IOException {
+            public int read() {
                 return 0;
             }
 
@@ -32,51 +36,32 @@ public class TestUtils {
         });
     }
 
-    @Test
-    public void testCheckArgumentsNumberEquals() throws WrongNumberOfArgumentsException {
-        List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""));
-        Utils.checkArgumentsNumberEquals(args, 2);
-        try {
-            Utils.checkArgumentsNumberEquals(args, 1);
-            assertTrue(false);
-        } catch (WrongNumberOfArgumentsException e) {
-            // ok
-        }
-        try {
-            Utils.checkArgumentsNumberEquals(args, 3);
-            assertTrue(false);
-        } catch (WrongNumberOfArgumentsException e) {
-            // ok
-        }
+    private void assertArgumentCheckThrowsException(BiConsumer<List<Slice>, Integer> check, List<Slice> args, int passValue, int failValue){
+        check.accept(args, passValue);
+        exception.expect(IllegalArgumentException.class);
+        check.accept(args, failValue);
     }
 
     @Test
-    public void testCheckArgumentsNumberGreater() throws WrongNumberOfArgumentsException {
+    public void testCheckArgumentsNumberEquals() {
         List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""));
-        Utils.checkArgumentsNumberGreater(args, 1);
-        try {
-            Utils.checkArgumentsNumberGreater(args, 2);
-            assertTrue(false);
-        } catch (WrongNumberOfArgumentsException e) {
-            // ok
-        }
+        assertArgumentCheckThrowsException(Utils::checkArgumentsNumberEquals, args, 2, 1);
     }
 
     @Test
-    public void testCheckArgumentsNumberFactor() throws WrongNumberOfArgumentsException {
+    public void testCheckArgumentsNumberGreater() {
+        List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""));
+        assertArgumentCheckThrowsException(Utils::checkArgumentsNumberGreater, args, 1, 2);
+    }
+
+    @Test
+    public void testCheckArgumentsNumberFactor() {
         List<Slice> args = Lists.newArrayList(new Slice(""), new Slice(""), new Slice(""));
-        Utils.checkArgumentsNumberFactor(args, 1);
-        Utils.checkArgumentsNumberFactor(args, 3);
-        try {
-            Utils.checkArgumentsNumberFactor(args, 2);
-            assertTrue(false);
-        } catch (WrongNumberOfArgumentsException e) {
-            // ok
-        }
+        assertArgumentCheckThrowsException(Utils::checkArgumentsNumberFactor, args, 1, 2);
     }
 
     @Test
-    public void testSerializeAndDeserialize() throws Exception {
+    public void testSerializeAndDeserialize() {
         Slice a = new Slice("abcdef");
         Slice b = Utils.deserializeObject(Utils.serializeObject(a));
         assertArrayEquals(a.data(), b.data());

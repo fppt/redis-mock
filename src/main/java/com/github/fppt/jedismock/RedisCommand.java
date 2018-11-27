@@ -1,29 +1,22 @@
 package com.github.fppt.jedismock;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Created by Xiaolu on 2015/4/20.
- */
-public class RedisCommand {
+@AutoValue
+public abstract class RedisCommand {
 
-    private List<Slice> params = Lists.newArrayList();
+    public abstract List<Slice> parameters();
 
-    RedisCommand() {}
-
-    void addParameter(Slice token) {
-        this.params.add(token);
-    }
-
-    public List<Slice> getParameters() {
-        return params;
+    static RedisCommand create(){
+        return new AutoValue_RedisCommand(Lists.newArrayList());
     }
 
     @Override
     public String toString(){
-        return params.stream().map(Slice::toString).collect(Collectors.joining(" "));
+        return parameters().stream().map(Slice::toString).collect(Collectors.joining(" "));
     }
 }

@@ -1,7 +1,5 @@
 package com.github.fppt.jedismock;
 
-import com.github.fppt.jedismock.exception.InternalException;
-import com.github.fppt.jedismock.exception.WrongNumberOfArgumentsException;
 import com.github.fppt.jedismock.exception.WrongValueTypeException;
 
 import java.io.ByteArrayInputStream;
@@ -25,21 +23,21 @@ public class Utils {
         }
     }
 
-    public static void checkArgumentsNumberEquals(List<Slice> args, int expect) throws WrongNumberOfArgumentsException {
+    public static void checkArgumentsNumberEquals(List<Slice> args, int expect) {
         if (args.size() != expect) {
-            throw new WrongNumberOfArgumentsException();
+            throw new IllegalArgumentException("The number of arguments [" + args.size() + "] does not match the expected value [" + expect + "]");
         }
     }
 
-    public static void checkArgumentsNumberGreater(List<Slice> args, int expect) throws WrongNumberOfArgumentsException {
+    public static void checkArgumentsNumberGreater(List<Slice> args, int expect) {
         if (args.size() <= expect) {
-            throw new WrongNumberOfArgumentsException();
+            throw new IllegalArgumentException("The number of arguments [" + args.size() + "] is less than the expected value [" + expect + "]");
         }
     }
 
-    public static void checkArgumentsNumberFactor(List<Slice> args, int factor) throws WrongNumberOfArgumentsException {
+    public static void checkArgumentsNumberFactor(List<Slice> args, int factor) {
         if (args.size() % factor != 0) {
-            throw new WrongNumberOfArgumentsException();
+            throw new IllegalArgumentException("The number of arguments [" + args.size() + "] is not a factor of the expected value [" + factor + "]");
         }
     }
 
@@ -53,7 +51,7 @@ public class Utils {
             bo.close();
             return encode;
         } catch (IOException e){
-            throw new InternalException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 
