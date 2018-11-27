@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RedisBase {
     private final Map<Slice, Set<RedisClient>> subscribers = new ConcurrentHashMap<>();
-    private final Map<Slice, Slice> base = new ConcurrentHashMap<>();
-    private final Map<Slice, Long> deadlines = new ConcurrentHashMap<>();
+    private final Hashtable<Slice, Slice> base = new Hashtable<>();
+    private final Hashtable<Slice, Long> deadlines = new Hashtable<>();
     private final Set<RedisBase> syncBases = ConcurrentHashMap.newKeySet();
 
     public RedisBase() {}

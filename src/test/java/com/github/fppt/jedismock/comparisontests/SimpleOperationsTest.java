@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock.comparisontests;
 
 
+import org.junit.Ignore;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -212,4 +213,28 @@ public class SimpleOperationsTest extends ComparisonBase {
         } while (poppedValue != null);
     }
 
+    @Ignore("Unsupported Feature For The Moment")
+    @Theory
+    public void whenHSettingAndHGetting_EnsureValuesAreSetAndRetreived(Jedis jedis){
+        String field = "my-field";
+        String hash = "my-hash";
+        String value = "my-value";
+
+        assertNull(jedis.hget(hash, field));
+        jedis.hset(hash, field, value);
+        assertEquals(value, jedis.hget(hash, field));
+    }
+
+    @Ignore("Unsupported Feature For The Moment")
+    @Theory
+    public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis){
+        String field = "my-field";
+        String hash = "my-hash";
+        String value = "my-value";
+
+        jedis.hset(hash, field, value);
+        assertEquals(value, jedis.hget(hash, field));
+        jedis.hdel(hash, field);
+        assertNull(jedis.hget(hash, field));
+    }
 }
