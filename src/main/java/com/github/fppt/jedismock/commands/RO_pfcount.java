@@ -18,7 +18,7 @@ class RO_pfcount extends AbstractRedisOperation {
     Slice response() {
         Set<Slice> set = Sets.newHashSet();
         for (Slice key : params()) {
-            Slice data = base().rawGet(key);
+            Slice data = base().getValue(key);
             if (data == null) {
                 continue;
             }

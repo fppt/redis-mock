@@ -25,12 +25,17 @@ public class RedisBase {
         syncBases.add(base);
     }
 
+
     public Set<Slice> keys(){
         return keyValueStorage.values().rowMap().keySet();
     }
 
-    public Slice rawGet(Slice key) {
+    public Slice getValue(Slice key) {
         return keyValueStorage.get(key);
+    }
+
+    public Slice getValue(Slice key1, Slice key2) {
+        return keyValueStorage.get(key1, key2);
     }
 
     public Long getTTL(Slice key) {
@@ -61,9 +66,14 @@ public class RedisBase {
         syncBases.clear();
     }
 
-    public void rawPut(Slice key, Slice value, Long ttl) {
+    public void putValue(Slice key, Slice value, Long ttl) {
         keyValueStorage.put(key, value, ttl);
-        syncBases((base) -> base.rawPut(key, value, ttl));
+        syncBases((base) -> base.putValue(key, value, ttl));
+    }
+
+    public void putValue(Slice key1, Slice key2, Slice value, Long ttl) {
+        keyValueStorage.put(key1, key2, value, ttl);
+        syncBases((base) -> base.putValue(key1, key2, value, ttl));
     }
 
     public void del(Slice key) {

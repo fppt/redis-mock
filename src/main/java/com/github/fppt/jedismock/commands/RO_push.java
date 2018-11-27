@@ -20,7 +20,7 @@ abstract class RO_push extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         LinkedList<Slice> list;
 
         if (data != null) {
@@ -33,7 +33,7 @@ abstract class RO_push extends AbstractRedisOperation {
             pusher(list, params().get(i));
         }
         try {
-            base().rawPut(key, serializeObject(list), -1L);
+            base().putValue(key, serializeObject(list), -1L);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

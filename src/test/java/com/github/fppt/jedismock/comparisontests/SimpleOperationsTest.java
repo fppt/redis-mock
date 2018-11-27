@@ -19,9 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(Theories.class)
 public class SimpleOperationsTest extends ComparisonBase {
@@ -213,7 +211,14 @@ public class SimpleOperationsTest extends ComparisonBase {
         } while (poppedValue != null);
     }
 
-    @Ignore("Unsupported Feature For The Moment")
+    @Theory
+    public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis){
+        String field = "my-field";
+        String hash = "my-hash";
+        assertEquals(new Long(1L), jedis.hset(hash, field, "some value"));
+        assertEquals(new Long(0L), jedis.hset(hash, field, "some other value"));
+    }
+
     @Theory
     public void whenHSettingAndHGetting_EnsureValuesAreSetAndRetreived(Jedis jedis){
         String field = "my-field";
@@ -225,7 +230,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.hget(hash, field));
     }
 
-    @Ignore("Unsupported Feature For The Moment")
+    @Ignore
     @Theory
     public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis){
         String field = "my-field";

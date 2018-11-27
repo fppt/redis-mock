@@ -19,7 +19,7 @@ abstract class RO_pop extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         LinkedList<Slice> list;
         if (data != null) {
             list = deserializeObject(data);
@@ -31,7 +31,7 @@ abstract class RO_pop extends AbstractRedisOperation {
             return Response.NULL;
         }
         Slice v = popper(list);
-        base().rawPut(key, serializeObject(list), -1L);
+        base().putValue(key, serializeObject(list), -1L);
         return Response.bulkString(v);
     }
 }

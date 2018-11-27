@@ -17,13 +17,12 @@ class RO_setex extends RO_set {
         super(base, params, expectedParams);
     }
 
-    @Override
     long valueToSet(List<Slice> params){
         return convertToLong(new String(params.get(1).data())) * 1000;
     }
 
     Slice response() {
-        base().rawPut(params().get(0), params().get(2), valueToSet(params()));
+        base().putValue(params().get(0), params().get(2), valueToSet(params()));
         return Response.OK;
     }
 }

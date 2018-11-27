@@ -16,7 +16,7 @@ class RO_setbit extends AbstractRedisOperation {
     }
 
     Slice response() {
-        Slice value = base().rawGet(params().get(0));
+        Slice value = base().getValue(params().get(0));
 
         byte bit = convertToByte(params().get(2).toString());
         int pos = convertToNonNegativeInteger(params().get(1).toString());
@@ -25,7 +25,7 @@ class RO_setbit extends AbstractRedisOperation {
             byte[] data = new byte[pos / 8 + 1];
             Arrays.fill(data, (byte) 0);
             data[pos / 8] = (byte) (bit << (pos % 8));
-            base().rawPut(params().get(0), Slice.create(data), -1L);
+            base().putValue(params().get(0), Slice.create(data), -1L);
             return Response.integer(0L);
         }
 
@@ -38,7 +38,7 @@ class RO_setbit extends AbstractRedisOperation {
             }
             data[pos / 8] = (byte) (bit << (pos % 8));
             original = 0;
-            base().rawPut(params().get(0), Slice.create(data), -1L);
+            base().putValue(params().get(0), Slice.create(data), -1L);
         } else {
             byte[] data = value.data();
             if ((data[pos / 8] & (1 << (pos % 8))) != 0) {
@@ -48,7 +48,7 @@ class RO_setbit extends AbstractRedisOperation {
             }
             data[pos / 8] |= (byte) (1 << (pos % 8));
             data[pos / 8] &= (byte) (bit << (pos % 8));
-            base().rawPut(params().get(0), Slice.create(data), -1L);
+            base().putValue(params().get(0), Slice.create(data), -1L);
         }
         return Response.integer(original);
     }

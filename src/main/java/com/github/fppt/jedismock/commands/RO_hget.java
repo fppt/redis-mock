@@ -6,12 +6,12 @@ import com.github.fppt.jedismock.Slice;
 
 import java.util.List;
 
-class RO_get extends AbstractRedisOperation {
-    RO_get(RedisBase base, List<Slice> params) {
-        super(base, params, 1, null, null);
+class RO_hget extends AbstractRedisOperation {
+    RO_hget(RedisBase base, List<Slice> params) {
+        super(base, params, 2, null, null);
     }
 
     Slice response() {
-        return Response.bulkString(base().getValue(params().get(0)));
+        return Response.bulkString(base().getValue(params().get(0), params().get(1)));
     }
 }

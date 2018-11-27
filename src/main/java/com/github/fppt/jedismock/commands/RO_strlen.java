@@ -12,7 +12,7 @@ class RO_strlen extends AbstractRedisOperation {
     }
 
     Slice response() {
-        Slice value = base().rawGet(params().get(0));
+        Slice value = base().getValue(params().get(0));
         if (value == null) {
             return Response.integer(0);
         }

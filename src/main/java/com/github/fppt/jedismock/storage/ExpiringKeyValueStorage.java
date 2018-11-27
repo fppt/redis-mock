@@ -42,7 +42,13 @@ public abstract class ExpiringKeyValueStorage {
     public Slice get(Slice key1, Slice key2){
         Preconditions.checkNotNull(key1);
         Preconditions.checkNotNull(key2);
-        return ExpiringStorageHelper.get(ttls().get(key1, key2), () -> values().get(key1, key2), () -> delete(key1, key2));
+
+        Long deadline = ttls().get(key1, key2);
+        if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
+            delete(key1, key2);
+            return null;
+        }
+        return values().get(key1, key2);
     }
 
     public Long getTTL(Slice key){
@@ -52,7 +58,20 @@ public abstract class ExpiringKeyValueStorage {
     public Long getTTL(Slice key1, Slice key2){
         Preconditions.checkNotNull(key1);
         Preconditions.checkNotNull(key2);
-        return ExpiringStorageHelper.getTTL(ttls().get(key1, key2), () -> delete(key1, key2));
+
+        Long deadline = ttls().get(key1, key2);
+        if (deadline == null) {
+            return null;
+        }
+        if (deadline == -1) {
+            return deadline;
+        }
+        long now = System.currentTimeMillis();
+        if (now < deadline) {
+            return deadline - now;
+        }
+        delete(key1, key1);
+        return null;
     }
 
     public long setTTL(Slice key, long ttl){

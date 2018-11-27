@@ -14,7 +14,7 @@ class RO_getbit extends AbstractRedisOperation {
     }
 
     Slice response() {
-        Slice value = base().rawGet(params().get(0));
+        Slice value = base().getValue(params().get(0));
         int pos = convertToNonNegativeInteger(params().get(1).toString());
 
         if (value == null) {

@@ -13,7 +13,7 @@ class RO_lpushx extends RO_lpush {
 
     Slice response(){
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
 
         if(data != null){
             return super.response();

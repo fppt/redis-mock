@@ -14,9 +14,9 @@ class RO_append extends AbstractRedisOperation {
     Slice response() {
         Slice key = params().get(0);
         Slice value = params().get(1);
-        Slice s = base().rawGet(key);
+        Slice s = base().getValue(key);
         if (s == null) {
-            base().rawPut(key, value, -1L);
+            base().putValue(key, value, -1L);
             return Response.integer(value.length());
         }
         byte[] b = new byte[s.length() + value.length()];
@@ -26,7 +26,7 @@ class RO_append extends AbstractRedisOperation {
         for (int i = s.length(); i < s.length() + value.length(); i++) {
             b[i] = value.data()[i - s.length()];
         }
-        base().rawPut(key, Slice.create(b), -1L);
+        base().putValue(key, Slice.create(b), -1L);
         return Response.integer(b.length);
     }
 }

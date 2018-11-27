@@ -21,7 +21,7 @@ class RO_lrem extends AbstractRedisOperation {
         Slice key = params().get(0);
         int numRemove = convertToInteger(new String(params().get(1).data()));
         Slice target = params().get(2);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
 
         if(data == null){
             return Response.integer(0);
@@ -48,7 +48,7 @@ class RO_lrem extends AbstractRedisOperation {
             }
         }
 
-        base().rawPut(key, serializeObject(list), -1L);
+        base().putValue(key, serializeObject(list), -1L);
 
         return Response.integer(numRemoved);
     }

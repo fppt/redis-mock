@@ -18,7 +18,7 @@ class RO_sadd extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         Set<Slice> set;
 
         if (data != null) {
@@ -31,7 +31,7 @@ class RO_sadd extends AbstractRedisOperation {
             set.add(params().get(i));
         }
         try {
-            base().rawPut(key, serializeObject(set), -1L);
+            base().putValue(key, serializeObject(set), -1L);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

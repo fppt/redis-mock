@@ -18,7 +18,7 @@ class RO_pfadd extends AbstractRedisOperation {
 
     Slice response(){
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         boolean first;
 
         Set<Slice> set;
@@ -39,9 +39,9 @@ class RO_pfadd extends AbstractRedisOperation {
 
         Slice out = serializeObject(set);
         if (first) {
-            base().rawPut(key, out, -1L);
+            base().putValue(key, out, -1L);
         } else {
-            base().rawPut(key, out, null);
+            base().putValue(key, out, null);
         }
 
         if (prev != set.size()) {

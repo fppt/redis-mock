@@ -18,7 +18,7 @@ class RO_smembers extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         //Has to be a list because Jedis can only deserialize lists
         LinkedList<Slice> set;
         if (data != null) {

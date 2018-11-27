@@ -18,14 +18,14 @@ abstract class RO_incrOrDecrBy extends AbstractRedisOperation {
     Slice response() {
         Slice key = params().get(0);
         long d = incrementOrDecrementValue(params());
-        Slice v = base().rawGet(key);
+        Slice v = base().getValue(key);
         if (v == null) {
-            base().rawPut(key, Slice.create(String.valueOf(d)), -1L);
+            base().putValue(key, Slice.create(String.valueOf(d)), -1L);
             return Response.integer(d);
         }
 
         long r = convertToLong(new String(v.data())) + d;
-        base().rawPut(key, Slice.create(String.valueOf(r)), -1L);
+        base().putValue(key, Slice.create(String.valueOf(r)), -1L);
         return Response.integer(r);
     }
 }

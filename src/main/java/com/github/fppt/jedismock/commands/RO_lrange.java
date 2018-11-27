@@ -19,7 +19,7 @@ class RO_lrange extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         LinkedList<Slice> list;
         if (data != null) {
             list = deserializeObject(data);

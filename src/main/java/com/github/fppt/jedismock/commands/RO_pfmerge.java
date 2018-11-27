@@ -18,7 +18,7 @@ class RO_pfmerge extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         boolean first;
 
         Set<Slice> set;
@@ -30,7 +30,7 @@ class RO_pfmerge extends AbstractRedisOperation {
             first = false;
         }
         for (Slice v : params().subList(1, params().size())) {
-            Slice src = base().rawGet(v);
+            Slice src = base().getValue(v);
             if (src != null) {
                 Set<Slice> s = deserializeObject(src);
                 set.addAll(s);
@@ -39,9 +39,9 @@ class RO_pfmerge extends AbstractRedisOperation {
 
         Slice out = serializeObject(set);
         if (first) {
-            base().rawPut(key, out, -1L);
+            base().putValue(key, out, -1L);
         } else {
-            base().rawPut(key, out, null);
+            base().putValue(key, out, null);
         }
         return Response.OK;
     }

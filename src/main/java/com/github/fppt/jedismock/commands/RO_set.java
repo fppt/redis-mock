@@ -11,16 +11,12 @@ class RO_set extends AbstractRedisOperation {
         super(base, params, 2, null, null);
     }
 
-    public RO_set(RedisBase base, List<Slice> params, Integer i) {
-        super(base, params, i, null,null);
-    }
-
-    long valueToSet(List<Slice> params){
-        return -1L;
+    public RO_set(RedisBase base, List<Slice> params, Integer expectedParams) {
+        super(base, params, expectedParams, null,null);
     }
 
     Slice response() {
-        base().rawPut(params().get(0), params().get(1), valueToSet(params()));
+        base().putValue(params().get(0), params().get(1), -1L);
         return Response.OK;
     }
 }

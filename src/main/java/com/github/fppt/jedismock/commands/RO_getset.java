@@ -12,8 +12,8 @@ class RO_getset extends AbstractRedisOperation {
     }
 
     Slice response() {
-        Slice value = base().rawGet(params().get(0));
-        base().rawPut(params().get(0), params().get(1), -1L);
+        Slice value = base().getValue(params().get(0));
+        base().putValue(params().get(0), params().get(1), -1L);
         return Response.bulkString(value);
     }
 }

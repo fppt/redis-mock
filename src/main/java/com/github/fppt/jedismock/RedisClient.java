@@ -1,6 +1,7 @@
 package com.github.fppt.jedismock;
 
 import com.github.fppt.jedismock.commands.RedisOperationExecutor;
+import com.github.fppt.jedismock.exception.ParseErrorException;
 import com.google.common.base.Preconditions;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,11 @@ public class RedisClient implements Runnable {
      * @return The next command on the stream if one was issues
      */
     private Optional<RedisCommand> nextCommand(){
-        return Optional.of(RedisCommandParser.parse(in));
+        try {
+            return Optional.of(RedisCommandParser.parse(in));
+        } catch (ParseErrorException e){
+            return Optional.empty(); // This simply means there is no next command
+        }
     }
 
     /**
