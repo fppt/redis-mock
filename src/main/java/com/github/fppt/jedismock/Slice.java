@@ -28,7 +28,7 @@ public abstract class Slice implements Comparable<Slice>, Serializable {
         return create(data.getBytes().clone());
     }
 
-    public static Slice reserved(){
+    public static synchronized Slice reserved(){
         if (RESERVED_SLICE == null){
             RESERVED_SLICE = new AutoValue_Slice(RESERVED_SLICE_BYTES);
         }
