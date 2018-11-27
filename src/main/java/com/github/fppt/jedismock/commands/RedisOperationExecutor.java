@@ -145,8 +145,10 @@ public class RedisOperationExecutor {
             Constructor<RedisOperation> constructor = (Constructor<RedisOperation>) clazz.getDeclaredConstructors()[0];
             return constructor.newInstance(base, params);
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException | IllegalArgumentException e) {
+            e.printStackTrace();
             throw new UnsupportedOperationException(String.format("Error initialising operation '%s'", name));
         }
     }
