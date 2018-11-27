@@ -18,7 +18,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 @RunWith(Theories.class)
 public class SimpleOperationsTest extends ComparisonBase {
