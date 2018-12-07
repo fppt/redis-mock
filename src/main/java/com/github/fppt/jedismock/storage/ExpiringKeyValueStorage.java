@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import java.util.Map;
+
 
 /**
  * Used to represent an expiring storage layer.
@@ -37,6 +39,10 @@ public abstract class ExpiringKeyValueStorage {
 
     public Slice get(Slice key){
         return get(key, Slice.reserved());
+    }
+
+    public Map<Slice, Slice> getFieldsAndValues(Slice hash){
+        return values().row(hash);
     }
 
     public Slice get(Slice key1, Slice key2){

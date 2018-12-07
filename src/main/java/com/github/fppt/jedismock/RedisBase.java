@@ -34,6 +34,10 @@ public class RedisBase {
         return keyValueStorage.get(key);
     }
 
+    public Map<Slice, Slice> getFieldsAndValues(Slice hash){
+        return keyValueStorage.getFieldsAndValues(hash);
+    }
+
     public Slice getValue(Slice key1, Slice key2) {
         return keyValueStorage.get(key1, key2);
     }

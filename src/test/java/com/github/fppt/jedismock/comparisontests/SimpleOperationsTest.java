@@ -8,10 +8,7 @@ import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -242,5 +239,38 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.hget(hash, field));
         assertEquals(new Long(1L), jedis.hdel(hash, field));
         assertNull(jedis.hget(hash, field));
+    }
+
+    @Theory
+    public void whenHGetAll_EnsureAllKeysAndValuesReturned(Jedis jedis){
+        String hash = "new_hash";
+        String field1 = "field1";
+        String value1 = "value1";
+        String field2 = "field2";
+        String value2 = "value2";
+        String field3 = "field3";
+        String value3 = "value3";
+
+        jedis.hset(hash, field1, value1);
+        jedis.hset(hash, field2, value2);
+
+        //Check first returns
+        Map<String, String> result = jedis.hgetAll(hash);
+        assertEquals(2, result.size());
+        assertEquals(value1, result.get(field1));
+        assertEquals(value2, result.get(field2));
+
+        jedis.hset(hash, field3, value3);
+
+        //Check first returns
+        result = jedis.hgetAll(hash);
+        assertEquals(3, result.size());
+        assertEquals(value1, result.get(field1));
+        assertEquals(value2, result.get(field2));
+        assertEquals(value3, result.get(field3));
+
+        //Check empty case
+        result = jedis.hgetAll("rubbish");
+        assertEquals(0, result.size());
     }
 }

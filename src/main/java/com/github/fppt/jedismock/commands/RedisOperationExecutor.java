@@ -136,6 +136,8 @@ public class RedisOperationExecutor {
                 return new RO_hset(base, params);
             case "hdel":
                 return new RO_hdel(base, params);
+            case "hgetall":
+                return new RO_hegetall(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }
