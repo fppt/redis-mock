@@ -273,4 +273,28 @@ public class SimpleOperationsTest extends ComparisonBase {
         result = jedis.hgetAll("rubbish");
         assertEquals(0, result.size());
     }
+
+    @Theory
+    public void whenUsingHsinter_EnsureSetIntersectionIsReturned(Jedis jedis){
+        String key1 = "my-set-key-1";
+        Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
+        String key2 = "my-set-key-2";
+        Set<String> mySet2 = new HashSet<>(Arrays.asList("b", "d", "e", "f"));
+        String key3 = "my-set-key-3";
+        Set<String> mySet3 = new HashSet<>(Arrays.asList("b", "e", "f"));
+
+        Set<String> expectedIntersection1 = new HashSet<>(Arrays.asList("b", "d"));
+        Set<String> expectedIntersection2 = new HashSet<>(Collections.singletonList("b"));
+
+        //Add everything from the sets
+        mySet1.forEach(value -> jedis.sadd(key1, value));
+        mySet2.forEach(value -> jedis.sadd(key2, value));
+        mySet3.forEach(value -> jedis.sadd(key3, value));
+
+        Set<String> intersection = jedis.sinter(key1, key2);
+        assertEquals(expectedIntersection1, intersection);
+
+        intersection = jedis.sinter(key1, key2, key3);
+        assertEquals(expectedIntersection2, intersection);
+    }
 }
