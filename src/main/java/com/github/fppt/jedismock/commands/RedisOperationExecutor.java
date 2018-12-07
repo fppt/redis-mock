@@ -140,6 +140,8 @@ public class RedisOperationExecutor {
                 return new RO_hegetall(base, params);
             case "sinter":
                 return new RO_sinter(base, params);
+            case "hmget":
+                return new RO_hmget(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }

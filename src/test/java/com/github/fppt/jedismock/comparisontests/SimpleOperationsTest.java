@@ -297,4 +297,30 @@ public class SimpleOperationsTest extends ComparisonBase {
         intersection = jedis.sinter(key1, key2, key3);
         assertEquals(expectedIntersection2, intersection);
     }
+
+    @Theory
+    public void whenUsingHMget_EnsureAllValuesReturnedForEachField(Jedis jedis){
+        String hash = "another_hash";
+        String field1 = "another field1";
+        String value1 = "another value1";
+        String field2 = "another field2";
+        String value2 = "another value2";
+        String field3 = "another field3";
+        String value3 = "another value3";
+        String field4 = "another field4";
+        String field5 = "another field5";
+
+        jedis.hset(hash, field1, value1);
+        jedis.hset(hash, field2, value2);
+        jedis.hset(hash, field3, value3);
+
+        List<String> result = jedis.hmget(hash, field1, field2, field5, field3, field4);
+
+        assertEquals(5, result.size());
+        assertEquals(value1, result.get(0));
+        assertEquals(value2, result.get(1));
+        assertNull(result.get(2));
+        assertEquals(value3, result.get(3));
+        assertNull(value1, result.get(4));
+    }
 }
