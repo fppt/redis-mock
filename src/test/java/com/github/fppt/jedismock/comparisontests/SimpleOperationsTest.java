@@ -22,6 +22,16 @@ import static org.junit.Assert.assertNull;
 @RunWith(Theories.class)
 public class SimpleOperationsTest extends ComparisonBase {
 
+    private String HASH = "hash";
+    private String FIELD_1 = "field1";
+    private String VALUE_1 = "value1";
+    private String FIELD_2 = "field2";
+    private String VALUE_2 = "value2";
+    private String FIELD_3 = "field3";
+    private String VALUE_3 = "value3";
+    private String FIELD_4 = "field4";
+    private String FIELD_5 = "field5";
+
     @Theory
     public void whenSettingKeyAndRetrievingIt_CorrectResultIsReturned(Jedis jedis) {
         String key = "key";
@@ -211,10 +221,8 @@ public class SimpleOperationsTest extends ComparisonBase {
 
     @Theory
     public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis){
-        String field = "my-field";
-        String hash = "my-hash";
-        assertEquals(new Long(1L), jedis.hset(hash, field, "some value"));
-        assertEquals(new Long(0L), jedis.hset(hash, field, "some other value"));
+        assertEquals(new Long(1L), jedis.hset(HASH, FIELD_1, VALUE_1));
+        assertEquals(new Long(0L), jedis.hset(HASH, FIELD_1, VALUE_1));
     }
 
     @Theory
@@ -243,31 +251,23 @@ public class SimpleOperationsTest extends ComparisonBase {
 
     @Theory
     public void whenHGetAll_EnsureAllKeysAndValuesReturned(Jedis jedis){
-        String hash = "new_hash";
-        String field1 = "field1";
-        String value1 = "value1";
-        String field2 = "field2";
-        String value2 = "value2";
-        String field3 = "field3";
-        String value3 = "value3";
-
-        jedis.hset(hash, field1, value1);
-        jedis.hset(hash, field2, value2);
+        jedis.hset(HASH, FIELD_1, VALUE_1);
+        jedis.hset(HASH, FIELD_2, VALUE_2);
 
         //Check first returns
-        Map<String, String> result = jedis.hgetAll(hash);
+        Map<String, String> result = jedis.hgetAll(HASH);
         assertEquals(2, result.size());
-        assertEquals(value1, result.get(field1));
-        assertEquals(value2, result.get(field2));
+        assertEquals(VALUE_1, result.get(FIELD_1));
+        assertEquals(VALUE_2, result.get(FIELD_2));
 
-        jedis.hset(hash, field3, value3);
+        jedis.hset(HASH, FIELD_3, VALUE_3);
 
         //Check first returns
-        result = jedis.hgetAll(hash);
+        result = jedis.hgetAll(HASH);
         assertEquals(3, result.size());
-        assertEquals(value1, result.get(field1));
-        assertEquals(value2, result.get(field2));
-        assertEquals(value3, result.get(field3));
+        assertEquals(VALUE_1, result.get(FIELD_1));
+        assertEquals(VALUE_2, result.get(FIELD_2));
+        assertEquals(VALUE_3, result.get(FIELD_3));
 
         //Check empty case
         result = jedis.hgetAll("rubbish");
@@ -300,27 +300,22 @@ public class SimpleOperationsTest extends ComparisonBase {
 
     @Theory
     public void whenUsingHMget_EnsureAllValuesReturnedForEachField(Jedis jedis){
-        String hash = "another_hash";
-        String field1 = "another field1";
-        String value1 = "another value1";
-        String field2 = "another field2";
-        String value2 = "another value2";
-        String field3 = "another field3";
-        String value3 = "another value3";
-        String field4 = "another field4";
-        String field5 = "another field5";
+        jedis.hset(HASH, FIELD_1, VALUE_1);
+        jedis.hset(HASH, FIELD_2, VALUE_2);
+        jedis.hset(HASH, FIELD_3, VALUE_3);
 
-        jedis.hset(hash, field1, value1);
-        jedis.hset(hash, field2, value2);
-        jedis.hset(hash, field3, value3);
-
-        List<String> result = jedis.hmget(hash, field1, field2, field5, field3, field4);
+        List<String> result = jedis.hmget(HASH, FIELD_1, FIELD_2, FIELD_5, FIELD_3, FIELD_4);
 
         assertEquals(5, result.size());
-        assertEquals(value1, result.get(0));
-        assertEquals(value2, result.get(1));
+        assertEquals(VALUE_1, result.get(0));
+        assertEquals(VALUE_2, result.get(1));
         assertNull(result.get(2));
-        assertEquals(value3, result.get(3));
-        assertNull(value1, result.get(4));
+        assertEquals(VALUE_3, result.get(3));
+        assertNull(result.get(4));
+    }
+
+    @Theory
+    public void whenUsingHMset_EnsureAllValuesAreSetForEachField(Jedis jedis){
+
     }
 }
