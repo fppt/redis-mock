@@ -316,6 +316,17 @@ public class SimpleOperationsTest extends ComparisonBase {
 
     @Theory
     public void whenUsingHMset_EnsureAllValuesAreSetForEachField(Jedis jedis){
+        Map<String, String> map = new HashMap<>();
+        map.put(FIELD_1, VALUE_1);
+        map.put(FIELD_2, VALUE_2);
 
+        jedis.hmset(HASH, map);
+        assertEquals(VALUE_1, jedis.hget(HASH, FIELD_1));
+        assertEquals(VALUE_2, jedis.hget(HASH, FIELD_2));
+
+        map.put(FIELD_2, VALUE_1);
+        jedis.hmset(HASH, map);
+        assertEquals(VALUE_1, jedis.hget(HASH, FIELD_1));
+        assertEquals(VALUE_1, jedis.hget(HASH, FIELD_2));
     }
 }
