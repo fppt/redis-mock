@@ -1,25 +1,26 @@
-package ai.grakn.redismock.commands;
+package com.github.fppt.jedismock.operations;
 
-import ai.grakn.redismock.RedisBase;
-import ai.grakn.redismock.Response;
-import ai.grakn.redismock.Slice;
+
+import com.github.fppt.jedismock.server.Response;
+import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static ai.grakn.redismock.Utils.deserializeObject;
-import static ai.grakn.redismock.Utils.serializeObject;
+import static com.github.fppt.jedismock.Utils.deserializeObject;
+import static com.github.fppt.jedismock.Utils.serializeObject;
 
 public class RO_zrem extends AbstractRedisOperation {
     public RO_zrem(RedisBase base, List<Slice> params) {
-        super(base, params, 2, null, null);
+        super(base, params);
     }
 
     @Override
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         Set<Slice> set;
         if (data != null) {
             set = deserializeObject(data);
@@ -33,7 +34,7 @@ public class RO_zrem extends AbstractRedisOperation {
         Iterator<Slice> it = set.iterator();
         it.next();
         it.remove();
-        base().rawPut(key, serializeObject(set), -1L);
+        base().putValue(key, serializeObject(set), -1L);
         return Response.integer(1);
     }
 }

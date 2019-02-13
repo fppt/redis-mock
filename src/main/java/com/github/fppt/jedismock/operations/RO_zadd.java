@@ -1,26 +1,27 @@
-package ai.grakn.redismock.commands;
+package com.github.fppt.jedismock.operations;
 
-import ai.grakn.redismock.RedisBase;
-import ai.grakn.redismock.Response;
-import ai.grakn.redismock.Slice;
-import ai.grakn.redismock.exception.InternalException;
+
+import com.github.fppt.jedismock.server.Response;
+import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.storage.RedisBase;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ai.grakn.redismock.Utils.deserializeObject;
-import static ai.grakn.redismock.Utils.serializeObject;
+import static com.github.fppt.jedismock.Utils.deserializeObject;
+import static com.github.fppt.jedismock.Utils.serializeObject;
 
 public class RO_zadd extends AbstractRedisOperation {
     public RO_zadd(RedisBase base, List<Slice> params) {
-        super(base, params, null, 1, null);
+        super(base, params);
     }
 
     @Override
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         Set<Slice> set;
 
         if (data != null) {
@@ -33,7 +34,7 @@ public class RO_zadd extends AbstractRedisOperation {
             set.add(params().get(i));
         }
         try {
-            base().rawPut(key, serializeObject(set), -1L);
+            base().putValue(key, serializeObject(set), -1L);
         } catch (Exception e) {
             throw new InternalException(e.getMessage());
         }

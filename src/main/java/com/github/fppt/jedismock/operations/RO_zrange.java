@@ -1,8 +1,9 @@
-package ai.grakn.redismock.commands;
+package com.github.fppt.jedismock.operations;
 
-import ai.grakn.redismock.RedisBase;
-import ai.grakn.redismock.Response;
-import ai.grakn.redismock.Slice;
+
+import com.github.fppt.jedismock.server.Response;
+import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.storage.RedisBase;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
@@ -10,18 +11,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static ai.grakn.redismock.Utils.convertToInteger;
-import static ai.grakn.redismock.Utils.deserializeObject;
+import static com.github.fppt.jedismock.Utils.convertToInteger;
+import static com.github.fppt.jedismock.Utils.deserializeObject;
 
 public class RO_zrange extends AbstractRedisOperation {
     public RO_zrange(RedisBase base, List<Slice> params) {
-        super(base, params, 3, null, null);
+        super(base, params);
     }
 
     @Override
     Slice response() {
         Slice key = params().get(0);
-        Slice data = base().rawGet(key);
+        Slice data = base().getValue(key);
         Set<Slice> set;
         if (data != null) {
             set = deserializeObject(data);
