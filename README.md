@@ -1,8 +1,7 @@
-[![GitHub release](https://img.shields.io/github/release/graknlabs/redis-mock.svg)](https://github.com/graknlabs/redis-mock/releases/latest)
-[![Build Status](https://travis-ci.org/graknlabs/redis-mock.svg?branch=master)](https://travis-ci.org/graknlabs/redis-mock)
-[![Slack Status](http://grakn-slackin.herokuapp.com/badge.svg)](https://grakn.ai/slack)
+[![GitHub release](https://img.shields.io/github/release/fppt/jedis-mock.svg)](https://github.com/fppt/jedis-mock/releases/latest)
+[![Build Status](https://travis-ci.org/fppt/jedis-mock.svg?branch=master)](https://travis-ci.org/fppt/jedis-mock)
 
-# Redis-Mock
+# Jedis-Mock
 
 Redis Mock is a simple in-memory mock of redis for java testing. 
 It allows you to test any behaviour dependent on redis without having to deploy an instance of redis
@@ -13,9 +12,9 @@ Add it as a dependency in Maven as:
 
 ```xml
 <dependency>
-  <groupId>ai.grakn</groupId>
-  <artifactId>redis-mock</artifactId>
-  <version>0.1.6</version>
+  <groupId>com.github.fppt</groupId>
+  <artifactId>jedis-mock</artifactId>
+  <version>0.1.9</version>
 </dependency>
 ```
 
@@ -46,17 +45,9 @@ public void after() {
 
 From here test as needed
 
-## Master and Slave
-
-```
-RedisServer master = newRedisServer();
-RedisServer slave = newRedisServer();
-master.setSlave(slave);
-```
-
 ## Fault tolerance testing
 
-We can make a RedisServer close connection after every serveral commands. This will cause a connection exception for clients.
+We can make a RedisServer close connection after every several commands. This will cause a connection exception for clients.
 
 ```
 RedisServer server = RedisServer.newRedisServer();
@@ -65,4 +56,18 @@ options.setCloseSocketAfterSeveralCommands(3);
 server.setOptions(options);
 server.start();
 ```
+
+## Supported Operations
+
+All currently supported operations are listed [here](https://github.com/fppt/jedis-mock/blob/master/src/main/java/com/github/fppt/jedismock/operations/OperationFactory.java)
+
+## Missing Operations
+
+If you get the following error:
+
+```
+Unsupported operation {}
+```
+
+Please feel free to create an issue requesting the missing operation.
 
