@@ -110,6 +110,6 @@ public class RedisBase {
     }
 
     public boolean exists(Slice slice) {
-        return keyValueStorage.values().containsRow(slice);
+        return keyValueStorage.exists(slice);
     }
 }
