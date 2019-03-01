@@ -108,4 +108,8 @@ public class RedisBase {
 
         return subscriptions;
     }
+
+    public boolean exists(Slice slice) {
+        return keyValueStorage.exists(slice);
+    }
 }

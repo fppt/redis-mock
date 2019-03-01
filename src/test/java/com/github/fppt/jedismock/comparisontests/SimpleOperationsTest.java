@@ -210,6 +210,42 @@ public class SimpleOperationsTest extends ComparisonBase {
         String key = "my-set-key-sadd";
         assertEquals(3, jedis.sadd(key, "A", "B", "C", "B").intValue());
         assertEquals(1, jedis.sadd(key, "A", "C", "E", "B").intValue());
+
+    @Theory
+    public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis){
+        String key = "my-counted-set-key";
+        Set<String> mySet = new HashSet<>(Arrays.asList("d", "e", "f"));
+
+        //Add everything from the set
+        mySet.forEach(value -> jedis.sadd(key, value));
+
+        //Get it all back
+        assertEquals(mySet.size(), jedis.scard(key).intValue());
+    }
+
+    @Theory
+    public void whenCalledForNonExistentSet_ensureScardReturnsZero(Jedis jedis){
+        String key = "non-existent";
+        assertEquals(0, jedis.scard(key).intValue());
+    }
+
+    @Theory
+    public void whenRemovingFromASet_EnsureTheSetIsUpdated(Jedis jedis){
+        String key = "my-set-key";
+        Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
+
+        //Add everything from the set
+        mySet.forEach(value -> jedis.sadd(key, value));
+
+        // Remove an element
+        mySet.remove("c");
+        mySet.remove("d");
+        mySet.remove("f");
+        int removed = jedis.srem(key, "c", "d", "f").intValue();
+
+        //Get it all back
+        assertEquals(mySet, jedis.smembers(key));
+        assertEquals(2, removed);
     }
 
     @Theory
@@ -351,5 +387,16 @@ public class SimpleOperationsTest extends ComparisonBase {
     @Theory
     public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis){
         assertNotNull(jedis.info());
+    }
+
+    @Theory
+    public void whenCreatingKeys_existsValuesUpdated(Jedis jedis){
+        jedis.set("foo", "bar");
+        assertTrue(jedis.exists("foo"));
+
+        assertFalse(jedis.exists("non-existent"));
+
+        jedis.hset("bar", "baz", "value");
+        assertTrue(jedis.exists("bar"));
     }
 }
