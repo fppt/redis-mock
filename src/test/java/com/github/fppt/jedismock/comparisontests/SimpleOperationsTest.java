@@ -206,10 +206,11 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenDuplicateValuesAddedToSet_ReturnsAddedValuesCountOnly(Jedis jedis){
+    public void whenDuplicateValuesAddedToSet_ReturnsAddedValuesCountOnly(Jedis jedis) {
         String key = "my-set-key-sadd";
         assertEquals(3, jedis.sadd(key, "A", "B", "C", "B").intValue());
         assertEquals(1, jedis.sadd(key, "A", "C", "E", "B").intValue());
+    }
 
     @Theory
     public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis){
