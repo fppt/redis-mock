@@ -21,8 +21,9 @@ public abstract class ExpiringKeyValueStorage {
         return new AutoValue_ExpiringKeyValueStorage(HashBasedTable.create(), HashBasedTable.create());
     }
 
-    public void delete(Slice key){
-        delete(key, Slice.reserved());
+    public void delete(Slice key) {
+        for (Slice key2 : values().row(key).keySet())
+            delete(key, key2);
     }
 
     public void delete(Slice key1, Slice key2){

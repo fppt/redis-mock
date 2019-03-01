@@ -400,4 +400,18 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.hset("bar", "baz", "value");
         assertTrue(jedis.exists("bar"));
     }
+
+    @Theory
+    public void deletionRemovesKeys(Jedis jedis){
+        String key1 = "hey_toremove";
+        String key2 = "hmap_toremove";
+        jedis.set(key1, "value");
+        jedis.hset(key2, "field", "value");
+        assertTrue(jedis.exists(key1));
+        assertTrue(jedis.exists(key2));
+        int count = jedis.del(key1, key2).intValue();
+        assertEquals(2, count);
+        assertFalse(jedis.exists(key1));
+        assertFalse(jedis.exists(key2));
+    }
 }
