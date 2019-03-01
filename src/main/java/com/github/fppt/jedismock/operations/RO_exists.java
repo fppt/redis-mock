@@ -12,7 +12,7 @@ class RO_exists extends AbstractRedisOperation {
     }
 
     Slice response() {
-        if (base().getValue(params().get(0)) != null) {
+        if (base().exists(params().get(0))) {
             return Response.integer(1);
         }
         return Response.integer(0);

@@ -121,4 +121,17 @@ public abstract class ExpiringKeyValueStorage {
         }
         return 0L;
     }
+
+    public boolean exists(Slice slice) {
+        if (values().containsRow(slice)) {
+            Long deadline = ttls().get(slice, Slice.reserved());
+            if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
+                delete(slice, Slice.reserved());
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
 }
