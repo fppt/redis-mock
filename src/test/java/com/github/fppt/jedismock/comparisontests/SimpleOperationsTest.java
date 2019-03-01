@@ -344,4 +344,15 @@ public class SimpleOperationsTest extends ComparisonBase {
     public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis){
         assertNotNull(jedis.info());
     }
+
+    @Theory
+    public void whenCreatingKeys_existsValuesUpdated(Jedis jedis){
+        jedis.set("foo", "bar");
+        assertTrue(jedis.exists("foo"));
+
+        assertFalse(jedis.exists("non-existent"));
+
+        jedis.hset("bar", "baz", "value");
+        assertTrue(jedis.exists("bar"));
+    }
 }
