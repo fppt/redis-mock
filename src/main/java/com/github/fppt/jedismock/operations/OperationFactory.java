@@ -68,6 +68,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("hmset", RO_hmset::new);
         TRANSACTIONAL_OPERATIONS.put("smembers", RO_smembers::new);
         TRANSACTIONAL_OPERATIONS.put("hsetnx", RO_hsetnx::new);
+        TRANSACTIONAL_OPERATIONS.put("time", RO_time::new);
     }
 
 

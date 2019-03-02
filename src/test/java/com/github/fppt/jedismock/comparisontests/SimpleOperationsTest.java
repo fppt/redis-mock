@@ -414,4 +414,14 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertFalse(jedis.exists(key1));
         assertFalse(jedis.exists(key2));
     }
+
+    @Theory
+    public void timeReturnsCurrentTime(Jedis jedis) {
+        long currentTime = System.currentTimeMillis() / 1000;
+        List<String> time = jedis.time();
+        //We believe that results difference will be within one second
+        assertTrue(Math.abs(currentTime - Long.parseLong(time.get(0))) < 2);
+        //Microseconds are correct integer value
+        Long.parseLong(time.get(1));
+    }
 }
