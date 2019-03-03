@@ -81,6 +81,7 @@
             <groupId>com.github.kstyrc</groupId>
             <artifactId>embedded-redis</artifactId>
             <version>${redis-embedded.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- Used for finding common bugs in java projects -->
         <dependency>
