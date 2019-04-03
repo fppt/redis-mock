@@ -29,7 +29,7 @@ public class TestRedisOperationExecutor {
         return "$" + param.length() + CRLF + param.toString() + CRLF;
     }
 
-    private static String array(CharSequence ...params) {
+    private static String array(CharSequence... params) {
         StringBuilder builder = new StringBuilder();
         builder.append('*').append(params.length).append(CRLF);
         for (CharSequence param : params) {
@@ -42,12 +42,20 @@ public class TestRedisOperationExecutor {
         return builder.toString();
     }
 
+    private static String nullArray() {
+        return "*1" + CRLF + "$-1" + CRLF;
+    }
+
     private void assertCommandEquals(String expect, String command) throws ParseErrorException, EOFException {
         assertEquals(bulkString(expect), executor.execCommand(RedisCommandParser.parse(command)).toString());
     }
 
     private void assertCommandEquals(long expect, String command) throws ParseErrorException, EOFException {
         assertEquals(Response.integer(expect), executor.execCommand(RedisCommandParser.parse(command)));
+    }
+
+    private void assertCommandArrayEquals(String expectedArray, String command) throws ParseErrorException, EOFException {
+        assertEquals(expectedArray, executor.execCommand(RedisCommandParser.parse(command)).toString());
     }
 
     private void assertCommandNull(String command) throws ParseErrorException, EOFException {
@@ -247,6 +255,20 @@ public class TestRedisOperationExecutor {
     public void testGetset() throws ParseErrorException, EOFException {
         assertCommandNull(array("getSET", "a", "abc"));
         assertCommandEquals("abc", array("getSET", "a", "abd"));
+    }
+
+    @Test
+    public void testHmsetAndHmget() throws EOFException {
+        assertCommandOK(array("hmset", "h", "a", "v1", "b", "v2"));
+        assertCommandArrayEquals(array("v1"), array("hmget", "h", "a"));
+        assertCommandArrayEquals(array("v2"), array("hmget", "h", "b"));
+    }
+
+    @Test
+    public void testDelHash() throws EOFException {
+        assertCommandOK(array("hmset","h", "a", "v1", "b", "v2"));
+        assertCommandEquals(1, array("del", "h"));
+        assertCommandArrayEquals(nullArray(), array("hmget", "h", "a"));
     }
 
     @Test

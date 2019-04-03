@@ -22,8 +22,10 @@ public abstract class ExpiringKeyValueStorage {
     }
 
     public void delete(Slice key) {
-        for (Slice key2 : values().row(key).keySet())
-            delete(key, key2);
+        for (Slice key2 : values().row(key).keySet()) {
+            ttls().remove(key, key2);
+        }
+        values().row(key).clear();
     }
 
     public void delete(Slice key1, Slice key2){
