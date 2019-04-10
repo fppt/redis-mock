@@ -6,6 +6,8 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.*;
@@ -17,6 +19,7 @@ import java.util.concurrent.Future;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -96,6 +99,18 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.get(key));
 
         jedis.flushAll();
+        assertNull(jedis.get(key));
+    }
+
+    @Theory
+    public void whenUsingFlushdb_EnsureEverythingIsDeleted(Jedis jedis){
+        String key = "my-super-special-key";
+        String value = "my-not-so-special-value";
+
+        jedis.set(key, value);
+        assertEquals(value, jedis.get(key));
+
+        jedis.flushDB();
         assertNull(jedis.get(key));
     }
 
@@ -423,5 +438,57 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(Math.abs(currentTime - Long.parseLong(time.get(0))) < 2);
         //Microseconds are correct integer value
         Long.parseLong(time.get(1));
+    }
+
+    @Theory
+    public void scanReturnsAllKey(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "scankey:111";
+        String key2 = "scankey:222";
+        String value = "myvalue";
+        jedis.set(key, value);
+        jedis.set(key2, value);
+
+        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START);
+
+        assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(2, result.getResult().size());
+        assertTrue(result.getResult().contains(key));
+        assertTrue(result.getResult().contains(key2));
+    }
+
+    @Theory
+    public void scanReturnsMatchingKey(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "scankeymatch:111";
+        String key2 = "scankeymatch:222";
+        String value = "myvalue";
+        jedis.set(key, value);
+        jedis.set(key2, value);
+
+        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START, new ScanParams().match("scankeymatch:1*"));
+
+        assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(1, result.getResult().size());
+        assertTrue(result.getResult().contains(key));
+    }
+
+    @Theory
+    public void scanIterates(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String value = "myvalue";
+        for (int i = 0; i < 20; i++) {
+            jedis.set("scankeyi:" + i, value);
+        }
+
+        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START, new ScanParams().match("scankeyi:1*").count(10));
+
+        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
     }
 }

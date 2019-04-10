@@ -52,10 +52,12 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("brpoplpush", RO_brpoplpush::new);
         TRANSACTIONAL_OPERATIONS.put("publish", RO_publish::new);
         TRANSACTIONAL_OPERATIONS.put("flushall", RO_flushall::new);
+        TRANSACTIONAL_OPERATIONS.put("flushdb", RO_flushdb::new);
         TRANSACTIONAL_OPERATIONS.put("lrem", RO_lrem::new);
         TRANSACTIONAL_OPERATIONS.put("ping", RO_ping::new);
         TRANSACTIONAL_OPERATIONS.put("keys", RO_keys::new);
         TRANSACTIONAL_OPERATIONS.put("sadd", RO_sadd::new);
+        TRANSACTIONAL_OPERATIONS.put("scan", RO_scan::new);
         TRANSACTIONAL_OPERATIONS.put("spop", RO_spop::new);
         TRANSACTIONAL_OPERATIONS.put("srem", RO_srem::new);
         TRANSACTIONAL_OPERATIONS.put("scard", RO_scard::new);

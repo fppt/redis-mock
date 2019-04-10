@@ -1,0 +1,64 @@
+package com.github.fppt.jedismock.operations;
+
+import com.github.fppt.jedismock.Utils;
+import com.github.fppt.jedismock.server.Response;
+import com.github.fppt.jedismock.server.Slice;
+import com.github.fppt.jedismock.storage.RedisBase;
+import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.github.fppt.jedismock.Utils.convertToLong;
+
+class RO_scan extends AbstractRedisOperation {
+
+    private static final long CURSOR_START = 0;
+    // From the Redis documentation, the default count if not specified:
+    private static final long DEFAULT_COUNT = 10;
+
+    private static final String MATCH = "match";
+    private static final String COUNT = "count";
+
+    RO_scan(RedisBase base, List<Slice> params) {
+        super(base, params);
+    }
+
+    Slice response() {
+
+        Slice cursorSlice = params().get(0);
+        long cursor = cursorSlice != null ? convertToLong(cursorSlice.toString()) : CURSOR_START;
+
+        Slice matchSlice = extractParameter(params(), MATCH);
+        String match = matchSlice != null ? matchSlice.toString() : "*";
+
+        Slice countSlice = extractParameter(params(), COUNT);
+        long count = countSlice != null ? convertToLong(countSlice.toString()) : DEFAULT_COUNT;
+
+        String regex = Utils.createRegexFromGlob(match);
+        List<Slice> matchingKeys = base().keys().stream()
+                .skip(cursor)
+                .limit(count)
+                .filter(x -> x.toString().matches(regex))
+                .map(Response::bulkString)
+                .collect(Collectors.toList());
+
+        cursor = cursor + count;
+        if (cursor >= base().keys().size()) {
+            cursor = CURSOR_START;
+        }
+
+        List<Slice> response = Lists.newArrayList(Response.bulkString(Slice.create(String.valueOf(cursor))), Response.array(matchingKeys));
+        return Response.array(response);
+    }
+
+    private static Slice extractParameter(List<Slice> params, String name) {
+        for (int i = 0; i < params.size(); i++) {
+            String param = new String(params.get(i).data());
+            if (name.equalsIgnoreCase(param)) {
+                return params.get(i + 1);
+            }
+        }
+        return null;
+    }
+}
