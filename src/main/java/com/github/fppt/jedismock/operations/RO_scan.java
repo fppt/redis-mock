@@ -7,6 +7,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
@@ -29,11 +30,8 @@ class RO_scan extends AbstractRedisOperation {
         Slice cursorSlice = params().get(0);
         long cursor = cursorSlice != null ? convertToLong(cursorSlice.toString()) : CURSOR_START;
 
-        Slice matchSlice = extractParameter(params(), MATCH);
-        String match = matchSlice != null ? matchSlice.toString() : "*";
-
-        Slice countSlice = extractParameter(params(), COUNT);
-        long count = countSlice != null ? convertToLong(countSlice.toString()) : DEFAULT_COUNT;
+        String match = extractParameter(params(), MATCH).map(Slice::toString).orElse("*");
+        long count = extractParameter(params(), COUNT).map(s -> convertToLong(s.toString())).orElse(DEFAULT_COUNT);
 
         String regex = Utils.createRegexFromGlob(match);
         List<Slice> matchingKeys = base().keys().stream()
@@ -52,13 +50,13 @@ class RO_scan extends AbstractRedisOperation {
         return Response.array(response);
     }
 
-    private static Slice extractParameter(List<Slice> params, String name) {
+    private static Optional<Slice> extractParameter(List<Slice> params, String name) {
         for (int i = 0; i < params.size(); i++) {
             String param = new String(params.get(i).data());
             if (name.equalsIgnoreCase(param)) {
-                return params.get(i + 1);
+                return Optional.of(params.get(i + 1));
             }
         }
-        return null;
+        return Optional.empty();
     }
 }
