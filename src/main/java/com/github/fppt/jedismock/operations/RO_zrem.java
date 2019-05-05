@@ -7,7 +7,7 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.fppt.jedismock.Utils.*;
+import static com.github.fppt.jedismock.Utils.serializeObject;
 
 class RO_zrem extends AbstractRedisOperation {
 

@@ -4,10 +4,12 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.github.fppt.jedismock.Utils.*;
+import static com.github.fppt.jedismock.Utils.convertToInteger;
 
 class RO_zrange extends AbstractRedisOperation {
 

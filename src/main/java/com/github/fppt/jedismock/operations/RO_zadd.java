@@ -4,10 +4,14 @@ import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.github.fppt.jedismock.Utils.*;
-import static java.util.stream.Collectors.*;
+import static com.github.fppt.jedismock.Utils.convertToDouble;
+import static com.github.fppt.jedismock.Utils.serializeObject;
+import static java.util.stream.Collectors.toMap;
 
 class RO_zadd extends AbstractRedisOperation {
 
