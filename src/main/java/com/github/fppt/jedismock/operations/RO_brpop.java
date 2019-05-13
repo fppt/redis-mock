@@ -6,9 +6,9 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RO_brpop extends RO_blpop {
+class RO_brpop extends RO_blpop {
 
-    public RO_brpop(RedisBase base, List<Slice> params) {
+    RO_brpop(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 

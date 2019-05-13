@@ -14,11 +14,11 @@ import static com.github.fppt.jedismock.Utils.serializeObject;
 
 import static com.github.fppt.jedismock.Utils.convertToLong;
 
-public class RO_blpop extends RO_lpop {
+class RO_blpop extends RO_lpop {
     private long count = 0L;
     private Slice source;
 
-    public RO_blpop(RedisBase base, List<Slice> params) {
+    RO_blpop(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
@@ -45,7 +45,7 @@ public class RO_blpop extends RO_lpop {
             if (list == null || list.isEmpty()) return Response.NULL;
             Slice v = popper(list);
             base().putValue(source, serializeObject(list));
-            ImmutableList.Builder<Slice> builder = new ImmutableList.Builder<Slice>();
+            ImmutableList.Builder<Slice> builder = new ImmutableList.Builder<>();
             builder.add(Response.bulkString(source));
             builder.add(Response.bulkString(v));
             this.source = null;
