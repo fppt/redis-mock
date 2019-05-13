@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 
 public class OperationFactory {
     private static final Map<String, BiFunction<RedisBase, List<Slice>, RedisOperation>> TRANSACTIONAL_OPERATIONS = new HashMap<>();
+
     static {
         TRANSACTIONAL_OPERATIONS.put("set", RO_set::new);
         TRANSACTIONAL_OPERATIONS.put("setex", RO_setex::new);
@@ -71,17 +72,19 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("smembers", RO_smembers::new);
         TRANSACTIONAL_OPERATIONS.put("hsetnx", RO_hsetnx::new);
         TRANSACTIONAL_OPERATIONS.put("time", RO_time::new);
+        TRANSACTIONAL_OPERATIONS.put("blpop", RO_blpop::new);
+        TRANSACTIONAL_OPERATIONS.put("brpop", RO_brpop::new);
     }
 
 
-    public static RedisOperation buildTxOperation(RedisBase base, String name, List<Slice> params){
+    public static RedisOperation buildTxOperation(RedisBase base, String name, List<Slice> params) {
         BiFunction<RedisBase, List<Slice>, RedisOperation> builder = OperationFactory.TRANSACTIONAL_OPERATIONS.get(name);
-        if(builder == null) throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
+        if (builder == null) throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         return builder.apply(base, params);
     }
 
-    public static Optional<RedisOperation> buildMetaOperation(String name, OperationExecutorState state, List<Slice> params){
-        switch(name){
+    public static Optional<RedisOperation> buildMetaOperation(String name, OperationExecutorState state, List<Slice> params) {
+        switch (name) {
             case "info":
                 return Optional.of(new RO_info());
             case "multi":
