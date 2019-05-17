@@ -88,6 +88,14 @@ public class Utils {
         }
     }
 
+    public static double convertToDouble(String value){
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new WrongValueTypeException("ERR bit offset is not a double or out of range");
+        }
+    }
+
     public static String createRegexFromGlob(String glob)
     {
         StringBuilder out = new StringBuilder("^");

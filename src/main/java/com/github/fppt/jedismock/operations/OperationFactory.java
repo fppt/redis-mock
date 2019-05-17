@@ -74,6 +74,9 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("time", RO_time::new);
         TRANSACTIONAL_OPERATIONS.put("blpop", RO_blpop::new);
         TRANSACTIONAL_OPERATIONS.put("brpop", RO_brpop::new);
+        TRANSACTIONAL_OPERATIONS.put("zadd", RO_zadd::new);
+        TRANSACTIONAL_OPERATIONS.put("zrange", RO_zrange::new);
+        TRANSACTIONAL_OPERATIONS.put("zrem", RO_zrem::new);
     }
 
 

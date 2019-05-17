@@ -491,4 +491,120 @@ public class SimpleOperationsTest extends ComparisonBase {
 
         assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
     }
+
+    @Theory
+    public void zaddAddsKey(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "mykey";
+        double score = 10;
+        String value = "myvalue";
+
+        long result = jedis.zadd(key, score, value);
+
+        assertEquals(1L, result);
+
+        List<String> results = new LinkedList<>(jedis.zrange(key, 0, -1));
+
+        assertEquals(1, results.size());
+        assertEquals(value, results.get(0));
+    }
+
+    @Theory
+    public void zaddAddsKeys(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("myvalue1", 10d);
+        members.put("myvalue2", 20d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(2L, result);
+
+        List<String> results = new LinkedList<>(jedis.zrange(key, 0, -1));
+
+        assertEquals(2, results.size());
+        assertEquals("myvalue1", results.get(0));
+        assertEquals("myvalue2", results.get(1));
+    }
+
+    @Theory
+    public void zremRemovesKey(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("myvalue1", 10d);
+        members.put("myvalue2", 20d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(2L, result);
+
+        List<String> results = new LinkedList<>(jedis.zrange(key, 0, -1));
+
+        assertEquals(2, results.size());
+        assertEquals("myvalue1", results.get(0));
+        assertEquals("myvalue2", results.get(1));
+
+        result = jedis.zrem(key, "myvalue1");
+
+        assertEquals(1L, result);
+
+        results = new LinkedList<>(jedis.zrange(key, 0, -1));
+
+        assertEquals(1, results.size());
+        assertEquals("myvalue2", results.get(0));
+    }
+
+    @Theory
+    public void zrangeKeysCorrectOrder(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("myvalue2", 10d);
+        members.put("myvalue4", 20d);
+        members.put("myvalue3", 15d);
+        members.put("myvalue1", 9d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(4L, result);
+
+        List<String> results = new LinkedList<>(jedis.zrange(key, 0, -1));
+
+        assertEquals(4, results.size());
+        assertEquals("myvalue1", results.get(0));
+        assertEquals("myvalue2", results.get(1));
+        assertEquals("myvalue3", results.get(2));
+        assertEquals("myvalue4", results.get(3));
+    }
+
+    @Theory
+    public void zrangeIndexOutOfRange(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("myvalue2", 10d);
+        members.put("myvalue4", 20d);
+        members.put("myvalue3", 15d);
+        members.put("myvalue1", 9d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(4L, result);
+
+        Set<String> results = jedis.zrange(key, 0, -6);
+
+        assertEquals(0, results.size());
+    }
 }
