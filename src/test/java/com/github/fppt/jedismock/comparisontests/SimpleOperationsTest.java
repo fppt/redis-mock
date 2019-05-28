@@ -47,14 +47,14 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingRpop_EnsureTheLastElementPushedIsReturned(Jedis jedis){
+    public void whenUsingRpop_EnsureTheLastElementPushedIsReturned(Jedis jedis) {
         String key = "Another key";
         jedis.rpush(key, "1", "2", "3");
         assertEquals(jedis.rpop(key), "3");
     }
 
     @Theory
-    public void whenUsingRpoplpush_CorrectResultsAreReturned(Jedis jedis){
+    public void whenUsingRpoplpush_CorrectResultsAreReturned(Jedis jedis) {
         String list1key = "list 1";
         String list2key = "list 2";
 
@@ -91,7 +91,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingFlushall_EnsureEverythingIsDeleted(Jedis jedis){
+    public void whenUsingFlushall_EnsureEverythingIsDeleted(Jedis jedis) {
         String key = "my-super-special-key";
         String value = "my-not-so-special-value";
 
@@ -103,7 +103,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingFlushdb_EnsureEverythingIsDeleted(Jedis jedis){
+    public void whenUsingFlushdb_EnsureEverythingIsDeleted(Jedis jedis) {
         String key = "my-super-special-key";
         String value = "my-not-so-special-value";
 
@@ -115,7 +115,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingLrem_EnsureDeletionsWorkAsExpected(Jedis jedis){
+    public void whenUsingLrem_EnsureDeletionsWorkAsExpected(Jedis jedis) {
         String key = "my-super-special-sexy-key";
         String hello = "hello";
         String foo = "foo";
@@ -142,7 +142,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingQuit_EnsureTheConnectionIsClosed(Jedis jedis){
+    public void whenUsingQuit_EnsureTheConnectionIsClosed(Jedis jedis) {
         //Create a new connection
         Client client = jedis.getClient();
         Jedis newJedis = new Jedis(client.getHost(), client.getPort());
@@ -157,7 +157,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     @Theory
     public void whenConcurrentlyIncrementingAndDecrementingCount_EnsureFinalCountIsCorrect(Jedis jedis) throws ExecutionException, InterruptedException {
         String key = "my-count-tracker";
-        int [] count = new int[]{1, 5, 6, 2, -9, -2, 10, 11, 5, -2, -2};
+        int[] count = new int[]{1, 5, 6, 2, -9, -2, 10, 11, 5, -2, -2};
 
         jedis.set(key, "0");
         assertEquals(0, Integer.parseInt(jedis.get(key)));
@@ -183,12 +183,12 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenPinging_Pong(Jedis jedis){
+    public void whenPinging_Pong(Jedis jedis) {
         assertEquals("PONG", jedis.ping());
     }
 
     @Theory
-    public void whenGettingKeys_EnsureCorrectKeysAreReturned(Jedis jedis){
+    public void whenGettingKeys_EnsureCorrectKeysAreReturned(Jedis jedis) {
         jedis.flushAll();
         jedis.mset("one", "1", "two", "2", "three", "3", "four", "4");
 
@@ -209,7 +209,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenAddingToASet_EnsureTheSetIsUpdated(Jedis jedis){
+    public void whenAddingToASet_EnsureTheSetIsUpdated(Jedis jedis) {
         String key = "my-set-key";
         Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
 
@@ -228,7 +228,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis){
+    public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis) {
         String key = "my-counted-set-key";
         Set<String> mySet = new HashSet<>(Arrays.asList("d", "e", "f"));
 
@@ -240,13 +240,13 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenCalledForNonExistentSet_ensureScardReturnsZero(Jedis jedis){
+    public void whenCalledForNonExistentSet_ensureScardReturnsZero(Jedis jedis) {
         String key = "non-existent";
         assertEquals(0, jedis.scard(key).intValue());
     }
 
     @Theory
-    public void whenRemovingFromASet_EnsureTheSetIsUpdated(Jedis jedis){
+    public void whenRemovingFromASet_EnsureTheSetIsUpdated(Jedis jedis) {
         String key = "my-set-key";
         Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
 
@@ -265,7 +265,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenPoppingFromASet_EnsureTheSetIsUpdated(Jedis jedis){
+    public void whenPoppingFromASet_EnsureTheSetIsUpdated(Jedis jedis) {
 
         String key = "my-set-key-spop";
         Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
@@ -276,18 +276,18 @@ public class SimpleOperationsTest extends ComparisonBase {
         String poppedValue;
         do {
             poppedValue = jedis.spop(key);
-            if(poppedValue != null) assertTrue("Popped value not in set", mySet.contains(poppedValue));
+            if (poppedValue != null) assertTrue("Popped value not in set", mySet.contains(poppedValue));
         } while (poppedValue != null);
     }
 
     @Theory
-    public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis){
+    public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis) {
         assertEquals(new Long(1L), jedis.hset(HASH, FIELD_1, VALUE_1));
         assertEquals(new Long(0L), jedis.hset(HASH, FIELD_1, VALUE_1));
     }
 
     @Theory
-    public void whenHSettingAndHGetting_EnsureValuesAreSetAndRetreived(Jedis jedis){
+    public void whenHSettingAndHGetting_EnsureValuesAreSetAndRetreived(Jedis jedis) {
         String field = "my-field";
         String hash = "my-hash";
         String value = "my-value";
@@ -298,7 +298,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis){
+    public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis) {
         String field = "my-field-2";
         String hash = "my-hash-2";
         String value = "my-value-2";
@@ -311,7 +311,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenHGetAll_EnsureAllKeysAndValuesReturned(Jedis jedis){
+    public void whenHGetAll_EnsureAllKeysAndValuesReturned(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
 
@@ -336,7 +336,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingHsinter_EnsureSetIntersectionIsReturned(Jedis jedis){
+    public void whenUsingHsinter_EnsureSetIntersectionIsReturned(Jedis jedis) {
         String key1 = "my-set-key-1";
         Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
         String key2 = "my-set-key-2";
@@ -360,7 +360,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingHMget_EnsureAllValuesReturnedForEachField(Jedis jedis){
+    public void whenUsingHMget_EnsureAllValuesReturnedForEachField(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
         jedis.hset(HASH, FIELD_3, VALUE_3);
@@ -376,7 +376,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingHMset_EnsureAllValuesAreSetForEachField(Jedis jedis){
+    public void whenUsingHMset_EnsureAllValuesAreSetForEachField(Jedis jedis) {
         Map<String, String> map = new HashMap<>();
         map.put(FIELD_1, VALUE_1);
         map.put(FIELD_2, VALUE_2);
@@ -392,7 +392,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingHsetnx_EnsureValueIsOnlyPutIfOtherValueDoesNotExist(Jedis jedis){
+    public void whenUsingHsetnx_EnsureValueIsOnlyPutIfOtherValueDoesNotExist(Jedis jedis) {
         assertNull(jedis.hget(HASH, FIELD_3));
         jedis.hsetnx(HASH, FIELD_3, VALUE_1);
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
@@ -401,12 +401,12 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis){
+    public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis) {
         assertNotNull(jedis.info());
     }
 
     @Theory
-    public void whenCreatingKeys_existsValuesUpdated(Jedis jedis){
+    public void whenCreatingKeys_existsValuesUpdated(Jedis jedis) {
         jedis.set("foo", "bar");
         assertTrue(jedis.exists("foo"));
 
@@ -417,7 +417,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void deletionRemovesKeys(Jedis jedis){
+    public void deletionRemovesKeys(Jedis jedis) {
         String key1 = "hey_toremove";
         String key2 = "hmap_toremove";
         jedis.set(key1, "value");
@@ -491,4 +491,81 @@ public class SimpleOperationsTest extends ComparisonBase {
 
         assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
     }
+
+    @Theory
+    public void sscanReturnsAllValues(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "sscankey";
+        jedis.del(key);
+        String[] values = new String[20];
+        for (int i = 0; i < 20; i++) {
+            values[i] = (21 - i) + "_value_" + i;
+        }
+        jedis.sadd(key, values);
+
+        ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().count(30));
+
+        assertEquals(20, result.getResult().size());
+        assertTrue(result.getResult().contains(values[1]));
+    }
+
+    @Theory
+    public void sscanReturnsPartialSet(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "sscankey";
+        jedis.del(key);
+        String[] values = new String[20];
+        for (int i = 0; i < 20; i++) {
+            values[i] = (21 - i) + "_value_" + i;
+        }
+        jedis.sadd(key, values);
+
+        ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().count(13));
+        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+    }
+
+    @Theory
+    public void sscanReturnsMatchingSet(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "sscankey";
+        jedis.del(key);
+        String[] values = new String[9];
+        for (int i = 0; i < 9; i++) {
+            values[i] = (21 - i) + "_value_" + i;
+        }
+        jedis.sadd(key, values);
+
+        ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().match("21_value_0"));
+
+        assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(1, result.getResult().size());
+        assertTrue(result.getResult().contains(values[0]));
+    }
+
+    /*
+    @Theory
+    public void sscanReturnsMatchingKey(Jedis jedis) {
+
+        jedis.flushDB();
+
+        String key = "mykey";
+        String[] values = new String[20];
+        for (int i = 0; i < 20; i++) {
+            values[i] = (21 - i) + "_value_" + i;
+        }
+        jedis.sadd(key, values);
+
+        ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().match("(19|20).*(1|2)").count(10));
+
+        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(2, result.getResult().size());
+        assertEquals("20_value_1", result.getResult().get(0));
+    }
+    */
 }

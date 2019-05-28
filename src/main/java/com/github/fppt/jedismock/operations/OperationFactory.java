@@ -59,6 +59,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("keys", RO_keys::new);
         TRANSACTIONAL_OPERATIONS.put("sadd", RO_sadd::new);
         TRANSACTIONAL_OPERATIONS.put("scan", RO_scan::new);
+        TRANSACTIONAL_OPERATIONS.put("sscan", RO_sscan::new);
         TRANSACTIONAL_OPERATIONS.put("spop", RO_spop::new);
         TRANSACTIONAL_OPERATIONS.put("srem", RO_srem::new);
         TRANSACTIONAL_OPERATIONS.put("scard", RO_scard::new);

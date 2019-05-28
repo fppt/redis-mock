@@ -21,32 +21,34 @@ class RO_scan extends AbstractRedisOperation {
     private static final String MATCH = "match";
     private static final String COUNT = "count";
 
+    protected Slice cursorSlice;
+    protected int size;
+
     RO_scan(RedisBase base, List<Slice> params) {
         super(base, params);
     }
 
-    Slice response() {
+    @Override
+    void doOptionalWork() {
+        this.cursorSlice = params().get(0);
+        this.size = base().keys().size();
+    }
 
-        Slice cursorSlice = params().get(0);
+    Slice response() {
         long cursor = cursorSlice != null ? convertToLong(cursorSlice.toString()) : CURSOR_START;
 
         String match = extractParameter(params(), MATCH).map(Slice::toString).orElse("*");
         long count = extractParameter(params(), COUNT).map(s -> convertToLong(s.toString())).orElse(DEFAULT_COUNT);
 
         String regex = Utils.createRegexFromGlob(match);
-        List<Slice> matchingKeys = base().keys().stream()
-                .skip(cursor)
-                .limit(count)
-                .filter(x -> x.toString().matches(regex))
-                .map(Response::bulkString)
-                .collect(Collectors.toList());
+        List<Slice> matchingValues = getMatchingValues(regex, cursor, count);
 
         cursor = cursor + count;
-        if (cursor >= base().keys().size()) {
+        if (cursor >= size) {
             cursor = CURSOR_START;
         }
 
-        List<Slice> response = Lists.newArrayList(Response.bulkString(Slice.create(String.valueOf(cursor))), Response.array(matchingKeys));
+        List<Slice> response = Lists.newArrayList(Response.bulkString(Slice.create(String.valueOf(cursor))), Response.array(matchingValues));
         return Response.array(response);
     }
 
@@ -58,5 +60,14 @@ class RO_scan extends AbstractRedisOperation {
             }
         }
         return Optional.empty();
+    }
+
+    protected List<Slice> getMatchingValues(String regex, long cursor, long count) {
+        return base().keys().stream()
+                .skip(cursor)
+                .limit(count)
+                .filter(x -> x.toString().matches(regex))
+                .map(Response::bulkString)
+                .collect(Collectors.toList());
     }
 }
