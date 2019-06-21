@@ -22,7 +22,7 @@ class RO_zadd extends AbstractRedisOperation {
     @Override
     Slice response() {
         Slice key = params().get(0);
-        LinkedHashMap<Slice, Slice> map = getDataFromBase(key, new LinkedHashMap<>());
+        LinkedHashMap<Slice, Double> map = getDataFromBase(key, new LinkedHashMap<>());
 
         int count = 0;
         for (int i = 1; i < params().size(); i += 2) {
@@ -30,9 +30,9 @@ class RO_zadd extends AbstractRedisOperation {
             Slice value = params().get(i + 1);
 
             // Score must be a double. Will throw an exception if it's not.
-            convertToDouble(score.toString());
+            double s = convertToDouble(score.toString());
 
-            Slice prevScore = map.put(value, score);
+            Double prevScore = map.put(value, s);
             if (prevScore == null) count++;
         }
 

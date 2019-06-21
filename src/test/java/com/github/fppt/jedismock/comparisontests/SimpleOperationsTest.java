@@ -4,10 +4,7 @@ package com.github.fppt.jedismock.comparisontests;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import redis.clients.jedis.Client;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ScanParams;
-import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.*;
@@ -533,6 +530,33 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
+    public void zcardEmptyKey(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+
+        long result = jedis.zcard(key);
+
+        assertEquals(0L, result);
+    }
+
+    @Theory
+    public void zcardReturnsCount(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("myvalue1", 10d);
+        members.put("myvalue2", 20d);
+
+        jedis.zadd(key, members);
+
+        long result = jedis.zcard(key);
+
+        assertEquals(2L, result);
+    }
+
+    @Theory
     public void zremRemovesKey(Jedis jedis) {
 
         jedis.flushDB();
@@ -606,5 +630,33 @@ public class SimpleOperationsTest extends ComparisonBase {
         Set<String> results = jedis.zrange(key, 0, -6);
 
         assertEquals(0, results.size());
+    }
+
+    @Theory
+    public void zrangeWithScores(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("myvalue2", 10d);
+        members.put("myvalue4", 20d);
+        members.put("myvalue3", 15d);
+        members.put("myvalue1", 9d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(4L, result);
+
+        List<Tuple> results = new LinkedList<>(jedis.zrangeWithScores(key, 0, -1));
+
+        assertEquals(4, results.size());
+        assertEquals("myvalue1", results.get(0).getElement());
+        assertEquals(9d, results.get(0).getScore(), 0);
+        assertEquals("myvalue2", results.get(1).getElement());
+        assertEquals(10d, results.get(1).getScore(), 0);
+        assertEquals("myvalue3", results.get(2).getElement());
+        assertEquals(15d, results.get(2).getScore(), 0);
+        assertEquals("myvalue4", results.get(3).getElement());
+        assertEquals(20d, results.get(3).getScore(), 0);
     }
 }

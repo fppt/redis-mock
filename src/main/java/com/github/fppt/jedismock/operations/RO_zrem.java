@@ -17,7 +17,7 @@ class RO_zrem extends AbstractRedisOperation {
 
     Slice response() {
         Slice key = params().get(0);
-        Map<Slice, Slice> map = getDataFromBase(key, null);
+        Map<Slice, Double> map = getDataFromBase(key, null);
         if(map == null || map.isEmpty()) return Response.integer(0);
         int count = 0;
         for (int i = 1; i < params().size(); i++) {
