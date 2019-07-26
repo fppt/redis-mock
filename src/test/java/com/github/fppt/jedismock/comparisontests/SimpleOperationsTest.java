@@ -14,11 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(Theories.class)
 public class SimpleOperationsTest extends ComparisonBase {
@@ -356,13 +352,13 @@ public class SimpleOperationsTest extends ComparisonBase {
         toCompare.add(FIELD_2);
 
         Set<String> result = jedis.hkeys(HASH);
-        assertTrue(result.equals(toCompare));
+        assertEquals(result, toCompare);
 
         toCompare.add(FIELD_3);
         jedis.hset(HASH, FIELD_3, VALUE_3);
 
         result = jedis.hkeys(HASH);
-        assertTrue(result.equals(toCompare));
+        assertEquals(result, toCompare);
     }
 
     @Theory
