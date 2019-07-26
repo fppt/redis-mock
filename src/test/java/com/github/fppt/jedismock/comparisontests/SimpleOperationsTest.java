@@ -55,6 +55,9 @@ public class SimpleOperationsTest extends ComparisonBase {
         String list1key = "list 1";
         String list2key = "list 2";
 
+        String nullResult = jedis.rpoplpush(list1key, list2key);
+        assertNull(nullResult);
+
         jedis.rpush(list1key, "1", "2", "3");
         jedis.rpush(list2key, "a", "b", "c");
 
