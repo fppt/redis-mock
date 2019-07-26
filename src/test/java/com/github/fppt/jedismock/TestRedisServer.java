@@ -8,8 +8,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import java.io.IOException;
 import java.net.BindException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -36,7 +35,7 @@ public class TestRedisServer {
         RedisServer server = RedisServer.newRedisServer(100000);
         try {
             server.start();
-            assertTrue(false);
+            fail();
         } catch (IllegalArgumentException e) {
             // OK
         }
@@ -49,7 +48,7 @@ public class TestRedisServer {
         RedisServer server2 = RedisServer.newRedisServer(server1.getBindPort());
         try {
             server2.start();
-            assertTrue(false);
+            fail();
         } catch (BindException e) {
             // OK
         }
@@ -67,7 +66,7 @@ public class TestRedisServer {
         assertEquals(jedis.set("ab", "cd"), "OK");
         try {
             assertEquals(jedis.set("ab", "cd"), "OK");
-            assertTrue(false);
+            fail();
         } catch (JedisConnectionException e) {
             // OK
         }
