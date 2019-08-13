@@ -104,6 +104,8 @@ public class OperationFactory {
                 return Optional.of(new RO_unsubscribe(state, params));
             case "quit":
                 return Optional.of(new RO_quit(state));
+            case "auth":
+                return Optional.of(new RO_auth(state));
             case "exec":
                 return Optional.of(new RO_exec(state));
             default:
