@@ -80,6 +80,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("zadd", RO_zadd::new);
         TRANSACTIONAL_OPERATIONS.put("zcard", RO_zcard::new);
         TRANSACTIONAL_OPERATIONS.put("zrange", RO_zrange::new);
+        TRANSACTIONAL_OPERATIONS.put("zrangebylex", RO_zrangebylex::new);
         TRANSACTIONAL_OPERATIONS.put("zrem", RO_zrem::new);
     }
 
