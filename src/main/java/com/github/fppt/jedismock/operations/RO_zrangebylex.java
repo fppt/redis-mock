@@ -26,29 +26,34 @@ class RO_zrangebylex extends AbstractRedisOperation {
         LinkedHashMap<Slice, Double> map = getDataFromBase(key, new LinkedHashMap<>());
 
         String start = params().get(1).toString();
-        if (!start.startsWith(INCLUSIVE_PREFIX) && !start.startsWith(EXCLUSIVE_PREFIX)) {
+        if (!START_UNBOUNDED.equals(start)
+                && !start.startsWith(INCLUSIVE_PREFIX)
+                && !start.startsWith(EXCLUSIVE_PREFIX)) {
             throw new RuntimeException("Valid start must start with '" + INCLUSIVE_PREFIX + "' or '"
                     + EXCLUSIVE_PREFIX + "'");
         }
 
-        Predicate<Slice> compareToStart = p -> START_UNBOUNDED.equals(start) ||
+        final Predicate<Slice> compareToStart = p -> START_UNBOUNDED.equals(start) ||
                 (start.startsWith(INCLUSIVE_PREFIX)
-                        ? p.toString().compareTo(start) >= 0
-                        : p.toString().compareTo(start) > 0);
+                        ? p.toString().compareTo(start.substring(1)) >= 0
+                        : p.toString().compareTo(start.substring(1)) > 0);
 
         String end = params().get(2).toString();
-        if (!end.startsWith(INCLUSIVE_PREFIX) && !end.startsWith(EXCLUSIVE_PREFIX)) {
+        if (!END_UNBOUNDED.equals(end)
+                && !end.startsWith(INCLUSIVE_PREFIX)
+                && !end.startsWith(EXCLUSIVE_PREFIX)) {
             throw new RuntimeException("Valid end must start with '" + INCLUSIVE_PREFIX + "' or '"
                     + EXCLUSIVE_PREFIX + "'");
         }
 
-        Predicate<Slice> compareToEnd = p -> END_UNBOUNDED.equals(end) ||
+        final Predicate<Slice> compareToEnd = p -> END_UNBOUNDED.equals(end) ||
                 (end.startsWith(INCLUSIVE_PREFIX)
-                        ? p.toString().compareTo(end) <= 0
-                        : p.toString().compareTo(end) < 0);
+                        ? p.toString().compareTo(end.substring(1)) <= 0
+                        : p.toString().compareTo(end.substring(1)) < 0);
 
         List<Slice> values = map.keySet().stream()
                 .filter(compareToStart.and(compareToEnd))
+                .sorted()
                 .map(Response::bulkString)
                 .collect(Collectors.toList());
 

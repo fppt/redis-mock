@@ -770,4 +770,34 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals("myvalue4", results.get(3).getElement());
         assertEquals(20d, results.get(3).getScore(), 0);
     }
+
+    @Theory
+    public void zrangebylexKeysCorrectOrder(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("bbb", 0d);
+        members.put("ddd", 0d);
+        members.put("ccc", 0d);
+        members.put("aaa", 0d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(4L, result);
+
+        List<String> results = new ArrayList<>(jedis.zrangeByLex(key, "-", "+"));
+
+        assertEquals(4, results.size());
+        assertEquals("aaa", results.get(0));
+        assertEquals("bbb", results.get(1));
+        assertEquals("ccc", results.get(2));
+        assertEquals("ddd", results.get(3));
+
+        results = new ArrayList<>(jedis.zrangeByLex(key, "[bbb", "(ddd"));
+
+        assertEquals(2, results.size());
+        assertEquals("bbb", results.get(0));
+        assertEquals("ccc", results.get(1));
+    }
 }
