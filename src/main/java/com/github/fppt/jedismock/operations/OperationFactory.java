@@ -28,6 +28,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("pexpire", RO_pexpire::new);
         TRANSACTIONAL_OPERATIONS.put("incr", RO_incr::new);
         TRANSACTIONAL_OPERATIONS.put("incrby", RO_incrby::new);
+        TRANSACTIONAL_OPERATIONS.put("incrbyfloat", RO_incrbyfloat::new);
         TRANSACTIONAL_OPERATIONS.put("decr", RO_decr::new);
         TRANSACTIONAL_OPERATIONS.put("decrby", RO_decrby::new);
         TRANSACTIONAL_OPERATIONS.put("pfcount", RO_pfcount::new);
