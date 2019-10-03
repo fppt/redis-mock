@@ -70,6 +70,8 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("hdel", RO_hdel::new);
         TRANSACTIONAL_OPERATIONS.put("hkeys", RO_hkeys::new);
         TRANSACTIONAL_OPERATIONS.put("hgetall", RO_hgetall::new);
+        TRANSACTIONAL_OPERATIONS.put("hincrby", RO_hincrby::new);
+        TRANSACTIONAL_OPERATIONS.put("hincrbyfloat", RO_hincrbyfloat::new);
         TRANSACTIONAL_OPERATIONS.put("sinter", RO_sinter::new);
         TRANSACTIONAL_OPERATIONS.put("hmget", RO_hmget::new);
         TRANSACTIONAL_OPERATIONS.put("hmset", RO_hmset::new);
