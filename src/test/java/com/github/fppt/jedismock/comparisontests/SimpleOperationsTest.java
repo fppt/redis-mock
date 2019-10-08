@@ -770,4 +770,21 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals("myvalue4", results.get(3).getElement());
         assertEquals(20d, results.get(3).getScore(), 0);
     }
+
+    @Theory
+    public void hashExpires(Jedis jedis) throws InterruptedException {
+        jedis.flushDB();
+
+        String key = "mykey";
+        String subkey = "mysubkey";
+
+        jedis.hsetnx(key, subkey, "a");
+        jedis.expire(key, 1);
+
+        Thread.sleep(2000);
+
+        String result = jedis.hget(key, subkey);
+
+        assertNull(result);
+    }
 }
