@@ -580,7 +580,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.flushDB();
 
         String key = "sscankey";
-        jedis.del(key);
+
         String[] values = new String[45];
         for (int i = 0; i < 45; i++) {
             values[i] = (45 - i) + "_value_" + i;
@@ -588,16 +588,17 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.sadd(key, values);
         String cursor = null;
 
-        int iterations = 0;
+        Set<String> results = new HashSet<>();
         while (cursor == null || !cursor.equals(ScanParams.SCAN_POINTER_START)) {
             if (cursor == null) {
                 cursor = ScanParams.SCAN_POINTER_START;
             }
             ScanResult<String> result = jedis.sscan(key, cursor);
             cursor = result.getStringCursor();
-            iterations++;
+            results.addAll(result.getResult());
         }
-        assertEquals(5, iterations);
+
+        assertTrue(results.containsAll(Arrays.asList(values)));
     }
 
     @Theory
