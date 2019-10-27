@@ -362,6 +362,18 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
+    public void whenHLen_EnsureCorrectLengthReturned(Jedis jedis) {
+        jedis.flushDB();
+
+        jedis.hset(HASH, FIELD_1, VALUE_1);
+        jedis.hset(HASH, FIELD_2, VALUE_2);
+
+        long result = jedis.hlen(HASH);
+
+        assertEquals(2, result);
+    }
+
+    @Theory
     public void whenUsingHsinter_EnsureSetIntersectionIsReturned(Jedis jedis) {
         String key1 = "my-set-key-1";
         Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
