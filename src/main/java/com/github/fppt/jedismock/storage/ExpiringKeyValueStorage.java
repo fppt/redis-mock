@@ -94,7 +94,13 @@ public abstract class ExpiringKeyValueStorage {
         Preconditions.checkNotNull(value);
 
         values().put(key1, key2, value);
-        if (ttl != null) {
+        if (ttl == null) {
+            // If a TTL hasn't been provided, we don't want to override the TTL. However, if no TTL is set for this key,
+            // we should still set it to -1L
+            if (getTTL(key1) == null) {
+                setDeadline(key1, -1L);
+            }
+        } else {
             if (ttl != -1) {
                 setTTL(key1, ttl);
             } else {

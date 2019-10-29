@@ -28,6 +28,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("pexpire", RO_pexpire::new);
         TRANSACTIONAL_OPERATIONS.put("incr", RO_incr::new);
         TRANSACTIONAL_OPERATIONS.put("incrby", RO_incrby::new);
+        TRANSACTIONAL_OPERATIONS.put("incrbyfloat", RO_incrbyfloat::new);
         TRANSACTIONAL_OPERATIONS.put("decr", RO_decr::new);
         TRANSACTIONAL_OPERATIONS.put("decrby", RO_decrby::new);
         TRANSACTIONAL_OPERATIONS.put("pfcount", RO_pfcount::new);
@@ -68,7 +69,10 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("hset", RO_hset::new);
         TRANSACTIONAL_OPERATIONS.put("hdel", RO_hdel::new);
         TRANSACTIONAL_OPERATIONS.put("hkeys", RO_hkeys::new);
+        TRANSACTIONAL_OPERATIONS.put("hlen", RO_hlen::new);
         TRANSACTIONAL_OPERATIONS.put("hgetall", RO_hgetall::new);
+        TRANSACTIONAL_OPERATIONS.put("hincrby", RO_hincrby::new);
+        TRANSACTIONAL_OPERATIONS.put("hincrbyfloat", RO_hincrbyfloat::new);
         TRANSACTIONAL_OPERATIONS.put("sinter", RO_sinter::new);
         TRANSACTIONAL_OPERATIONS.put("hmget", RO_hmget::new);
         TRANSACTIONAL_OPERATIONS.put("hmset", RO_hmset::new);
@@ -80,6 +84,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("zadd", RO_zadd::new);
         TRANSACTIONAL_OPERATIONS.put("zcard", RO_zcard::new);
         TRANSACTIONAL_OPERATIONS.put("zrange", RO_zrange::new);
+        TRANSACTIONAL_OPERATIONS.put("zrangebylex", RO_zrangebylex::new);
         TRANSACTIONAL_OPERATIONS.put("zrem", RO_zrem::new);
     }
 
@@ -104,6 +109,8 @@ public class OperationFactory {
                 return Optional.of(new RO_unsubscribe(state, params));
             case "quit":
                 return Optional.of(new RO_quit(state));
+            case "auth":
+                return Optional.of(new RO_auth(state));
             case "exec":
                 return Optional.of(new RO_exec(state));
             default:

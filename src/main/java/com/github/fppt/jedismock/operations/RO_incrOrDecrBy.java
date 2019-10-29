@@ -25,7 +25,7 @@ abstract class RO_incrOrDecrBy extends AbstractRedisOperation {
         }
 
         long r = convertToLong(new String(v.data())) + d;
-        base().putValue(key, Slice.create(String.valueOf(r)));
+        base().putValueWithoutClearingTtl(key, Slice.create(String.valueOf(r)));
         return Response.integer(r);
     }
 }

@@ -1,11 +1,11 @@
 package com.github.fppt.jedismock.comparisontests;
 
-
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -151,7 +151,8 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenConcurrentlyIncrementingAndDecrementingCount_EnsureFinalCountIsCorrect(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void whenConcurrentlyIncrementingAndDecrementingCount_EnsureFinalCountIsCorrect(
+            Jedis jedis) throws ExecutionException, InterruptedException {
         String key = "my-count-tracker";
         int[] count = new int[]{1, 5, 6, 2, -9, -2, 10, 11, 5, -2, -2};
 
@@ -168,7 +169,6 @@ public class SimpleOperationsTest extends ComparisonBase {
                 client.close();
             }));
         }
-
 
         for (Future futue : futues) {
             futue.get();
@@ -201,7 +201,8 @@ public class SimpleOperationsTest extends ComparisonBase {
         //All Keys
         results = jedis.keys("*");
         assertEquals(4, results.size());
-        assertTrue(results.contains("one") && results.contains("two") && results.contains("three") && results.contains("four"));
+        assertTrue(results.contains("one") && results.contains("two") && results.contains("three") && results.contains(
+                "four"));
     }
 
     @Theory
@@ -221,6 +222,40 @@ public class SimpleOperationsTest extends ComparisonBase {
         String key = "my-set-key-sadd";
         assertEquals(3, jedis.sadd(key, "A", "B", "C", "B").intValue());
         assertEquals(1, jedis.sadd(key, "A", "C", "E", "B").intValue());
+    }
+
+    @Theory
+    public void whenIncrementingSet_ensureValuesAreCorrect(Jedis jedis) {
+        String key = "my-set-key-hincr";
+        jedis.hset(key, "E", "3.14e1");
+        jedis.hset(key, "F", "not-a-number");
+
+        assertEquals(3, jedis.hincrBy(key, "A", 3).intValue());
+        assertEquals(4.5, jedis.hincrByFloat(key, "A", 1.5), 0.00001);
+        assertEquals(-1.5, jedis.hincrByFloat(key, "B", -1.5), 0.00001);
+
+        try {
+            jedis.hincrBy(key, "F", 1);
+            fail("Exception not thrown");
+        } catch (JedisDataException ignored) {
+            // Non-integer value
+        }
+
+        try {
+            jedis.hincrBy(key, "E", 1);
+            fail("Exception not thrown");
+        } catch (JedisDataException ignored) {
+            // Non-integer value
+        }
+
+        try {
+            jedis.hincrByFloat(key, "F", 1);
+            fail("Exception not thrown");
+        } catch (JedisDataException ignored) {
+            // Non-numeric value
+        }
+
+        assertEquals(31.41, jedis.hincrByFloat(key, "E", 0.01), 0.00001);
     }
 
     @Theory
@@ -272,7 +307,9 @@ public class SimpleOperationsTest extends ComparisonBase {
         String poppedValue;
         do {
             poppedValue = jedis.spop(key);
-            if (poppedValue != null) assertTrue("Popped value not in set", mySet.contains(poppedValue));
+            if (poppedValue != null) {
+                assertTrue("Popped value not in set", mySet.contains(poppedValue));
+            }
         } while (poppedValue != null);
     }
 
@@ -294,7 +331,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenHSettingAndHGetting_EnsureValuesAreSetAndExist(Jedis jedis){
+    public void whenHSettingAndHGetting_EnsureValuesAreSetAndExist(Jedis jedis) {
         String field = "my-field";
         String hash = "my-hash";
         String value = "my-value";
@@ -343,7 +380,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenHKeys_EnsureAllKeysReturned(Jedis jedis){
+    public void whenHKeys_EnsureAllKeysReturned(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
 
@@ -359,6 +396,18 @@ public class SimpleOperationsTest extends ComparisonBase {
 
         result = jedis.hkeys(HASH);
         assertEquals(result, toCompare);
+    }
+
+    @Theory
+    public void whenHLen_EnsureCorrectLengthReturned(Jedis jedis) {
+        jedis.flushDB();
+
+        jedis.hset(HASH, FIELD_1, VALUE_1);
+        jedis.hset(HASH, FIELD_2, VALUE_2);
+
+        long result = jedis.hlen(HASH);
+
+        assertEquals(2, result);
     }
 
     @Theory
@@ -496,7 +545,8 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.set(key, value);
         jedis.set(key2, value);
 
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START, new ScanParams().match("scankeymatch:1*"));
+        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
+                new ScanParams().match("scankeymatch:1*"));
 
         assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
         assertEquals(1, result.getResult().size());
@@ -513,7 +563,8 @@ public class SimpleOperationsTest extends ComparisonBase {
             jedis.set("scankeyi:" + i, value);
         }
 
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START, new ScanParams().match("scankeyi:1*").count(10));
+        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
+                new ScanParams().match("scankeyi:1*").count(10));
 
         assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
     }
@@ -567,7 +618,8 @@ public class SimpleOperationsTest extends ComparisonBase {
         }
         jedis.sadd(key, values);
 
-        ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().match("21_value_0"));
+        ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START,
+                new ScanParams().match("21_value_0"));
 
         assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
         assertEquals(1, result.getResult().size());
@@ -580,7 +632,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.flushDB();
 
         String key = "sscankey";
-        jedis.del(key);
+
         String[] values = new String[45];
         for (int i = 0; i < 45; i++) {
             values[i] = (45 - i) + "_value_" + i;
@@ -588,16 +640,17 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.sadd(key, values);
         String cursor = null;
 
-        int iterations = 0;
+        Set<String> results = new HashSet<>();
         while (cursor == null || !cursor.equals(ScanParams.SCAN_POINTER_START)) {
             if (cursor == null) {
                 cursor = ScanParams.SCAN_POINTER_START;
             }
             ScanResult<String> result = jedis.sscan(key, cursor);
             cursor = result.getStringCursor();
-            iterations++;
+            results.addAll(result.getResult());
         }
-        assertEquals(5, iterations);
+
+        assertTrue(results.containsAll(Arrays.asList(values)));
     }
 
     @Theory
@@ -769,6 +822,92 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(15d, results.get(2).getScore(), 0);
         assertEquals("myvalue4", results.get(3).getElement());
         assertEquals(20d, results.get(3).getScore(), 0);
+    }
+
+    @Theory
+    public void zrangebylexKeysCorrectOrder(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("bbb", 0d);
+        members.put("ddd", 0d);
+        members.put("ccc", 0d);
+        members.put("aaa", 0d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(4L, result);
+
+        List<String> results = new ArrayList<>(jedis.zrangeByLex(key, "-", "+"));
+
+        assertEquals(4, results.size());
+        assertEquals("aaa", results.get(0));
+        assertEquals("bbb", results.get(1));
+        assertEquals("ccc", results.get(2));
+        assertEquals("ddd", results.get(3));
+
+        results = new ArrayList<>(jedis.zrangeByLex(key, "[bbb", "(ddd"));
+
+        assertEquals(2, results.size());
+        assertEquals("bbb", results.get(0));
+        assertEquals("ccc", results.get(1));
+    }
+
+    @Theory
+    public void incrDoesNotClearTtl(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        jedis.set(key, "0");
+        jedis.expire(key, 100);
+
+        jedis.incr(key);
+        long ttl = jedis.ttl(key);
+
+        assertTrue(ttl > 0);
+    }
+
+    @Theory
+    public void incrByDoesNotClearTtl(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        jedis.set(key, "0");
+        jedis.expire(key, 100);
+
+        jedis.incrBy(key, 10);
+        long ttl = jedis.ttl(key);
+
+        assertTrue(ttl > 0);
+    }
+
+    @Theory
+    public void decrDoesNotClearTtl(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        jedis.set(key, "0");
+        jedis.expire(key, 100);
+
+        jedis.decr(key);
+        long ttl = jedis.ttl(key);
+
+        assertTrue(ttl > 0);
+    }
+
+    @Theory
+    public void decrByDoesNotClearTtl(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        jedis.set(key, "0");
+        jedis.expire(key, 100);
+
+        jedis.decrBy(key, 10);
+        long ttl = jedis.ttl(key);
+
+        assertTrue(ttl > 0);
     }
 
     @Theory

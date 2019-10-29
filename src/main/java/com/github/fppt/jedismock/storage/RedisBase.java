@@ -53,6 +53,14 @@ public class RedisBase {
         subscribers.clear();
     }
 
+    public void putValueWithoutClearingTtl(Slice key, Slice value) {
+        putValue(key, value, null);
+    }
+
+    public void putValueWithoutClearingTtl(Slice key1, Slice key2, Slice value) {
+        putValue(key1, key2, value, null);
+    }
+
     public void putValue(Slice key, Slice value){
         putValue(key, value, -1L);
     }

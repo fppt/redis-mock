@@ -39,6 +39,10 @@ public class Response {
         return Slice.create(String.format(":%d%s", v, LINE_SEPARATOR));
     }
 
+    public static Slice doubleValue(double v) {
+        return Slice.create(String.format(":%g%s", v, LINE_SEPARATOR));
+    }
+
     public static Slice array(List<Slice> values) {
         ByteArrayDataOutput bo = ByteStreams.newDataOutput();
         bo.write(String.format("*%d%s", values.size(), LINE_SEPARATOR).getBytes());
