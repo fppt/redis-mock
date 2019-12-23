@@ -5,6 +5,7 @@ import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
 
 import java.util.List;
+import java.util.Map;
 
 class RO_rename extends AbstractRedisOperation {
 
@@ -13,12 +14,14 @@ class RO_rename extends AbstractRedisOperation {
     }
 
     private boolean rename(Slice key, Slice newKey) {
-        final Slice value = base().getValue(key);
+        Map<Slice, Slice> value = base().getFieldsAndValues(key);
         final Long ttl = base().getTTL(key);
         if (ttl == null) {
             return false;
         }
-        base().putValue(newKey, value, ttl);
+        for (Map.Entry<Slice, Slice> entry : value.entrySet()) {
+            base().putValue(newKey, entry.getKey(), entry.getValue(), ttl);
+        }
         base().deleteValue(key);
         return true;
     }

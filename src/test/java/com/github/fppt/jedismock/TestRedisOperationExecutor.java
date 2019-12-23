@@ -433,4 +433,12 @@ public class TestRedisOperationExecutor {
         assertCommandNull(array("get", "old"));
     }
 
+    @Test
+    public void testRenameHash() throws EOFException {
+        assertCommandEquals(1, array("hset", "old", "a", "1"));
+        assertCommandOK(array("rename", "old", "new"));
+        assertCommandEquals("1", array("hget", "new", "a"));
+        assertCommandNull(array("get", "old"));
+    }
+
 }
