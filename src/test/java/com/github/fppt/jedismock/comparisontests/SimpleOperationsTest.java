@@ -909,4 +909,21 @@ public class SimpleOperationsTest extends ComparisonBase {
 
         assertTrue(ttl > 0);
     }
+
+    @Theory
+    public void hashExpires(Jedis jedis) throws InterruptedException {
+        jedis.flushDB();
+
+        String key = "mykey";
+        String subkey = "mysubkey";
+
+        jedis.hsetnx(key, subkey, "a");
+        jedis.expire(key, 1);
+
+        Thread.sleep(2000);
+
+        String result = jedis.hget(key, subkey);
+
+        assertNull(result);
+    }
 }

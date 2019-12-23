@@ -4,6 +4,7 @@ import com.github.fppt.jedismock.server.Slice;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
 import java.util.Map;
@@ -15,16 +16,14 @@ import java.util.Map;
 @AutoValue
 public abstract class ExpiringKeyValueStorage {
     public abstract Table<Slice, Slice, Slice> values();
-    public abstract Table<Slice, Slice, Long> ttls();
+    public abstract Map<Slice, Long> ttls();
 
     public static ExpiringKeyValueStorage create(){
-        return new AutoValue_ExpiringKeyValueStorage(HashBasedTable.create(), HashBasedTable.create());
+        return new AutoValue_ExpiringKeyValueStorage(HashBasedTable.create(), Maps.newHashMap());
     }
 
     public void delete(Slice key) {
-        for (Slice key2 : values().row(key).keySet()) {
-            ttls().remove(key, key2);
-        }
+        ttls().remove(key);
         values().row(key).clear();
     }
 
@@ -32,7 +31,10 @@ public abstract class ExpiringKeyValueStorage {
         Preconditions.checkNotNull(key1);
         Preconditions.checkNotNull(key2);
         values().remove(key1, key2);
-        ttls().remove(key1, key2);
+
+        if (!values().containsRow(key1)) {
+            ttls().remove(key1);
+        }
     }
 
     public void clear(){
@@ -52,23 +54,18 @@ public abstract class ExpiringKeyValueStorage {
         Preconditions.checkNotNull(key1);
         Preconditions.checkNotNull(key2);
 
-        Long deadline = ttls().get(key1, key2);
+        Long deadline = ttls().get(key1);
         if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
-            delete(key1, key2);
+            delete(key1);
             return null;
         }
         return values().get(key1, key2);
     }
 
-    public Long getTTL(Slice key){
-        return getTTL(key, Slice.reserved());
-    }
+    public Long getTTL(Slice key) {
+        Preconditions.checkNotNull(key);
 
-    public Long getTTL(Slice key1, Slice key2){
-        Preconditions.checkNotNull(key1);
-        Preconditions.checkNotNull(key2);
-
-        Long deadline = ttls().get(key1, key2);
+        Long deadline = ttls().get(key);
         if (deadline == null) {
             return null;
         }
@@ -79,16 +76,12 @@ public abstract class ExpiringKeyValueStorage {
         if (now < deadline) {
             return deadline - now;
         }
-        delete(key1, key1);
+        delete(key);
         return null;
     }
 
     public long setTTL(Slice key, long ttl){
-        return setTTL(key, Slice.reserved(), ttl);
-    }
-
-    public long setTTL(Slice key1, Slice key2, long ttl){
-        return setDeadline(key1, key2, ttl + System.currentTimeMillis());
+        return setDeadline(key, ttl + System.currentTimeMillis());
     }
 
     public void put(Slice key, Slice value, Long ttl){
@@ -104,28 +97,23 @@ public abstract class ExpiringKeyValueStorage {
         if (ttl == null) {
             // If a TTL hasn't been provided, we don't want to override the TTL. However, if no TTL is set for this key,
             // we should still set it to -1L
-            if (getTTL(key1, key2) == null) {
-                setDeadline(key1, key2, -1L);
+            if (getTTL(key1) == null) {
+                setDeadline(key1, -1L);
             }
         } else {
             if (ttl != -1) {
-                setTTL(key1, key2, ttl);
+                setTTL(key1, ttl);
             } else {
-                setDeadline(key1, key2, -1L);
+                setDeadline(key1, -1L);
             }
         }
     }
 
     public long setDeadline(Slice key, long deadline) {
-        return setDeadline(key, Slice.reserved(), deadline);
-    }
+        Preconditions.checkNotNull(key);
 
-    public long setDeadline(Slice key1, Slice key2, long deadline) {
-        Preconditions.checkNotNull(key1);
-        Preconditions.checkNotNull(key2);
-
-        if (values().contains(key1, key2)) {
-            ttls().put(key1, key2, deadline);
+        if (values().containsRow(key)) {
+            ttls().put(key, deadline);
             return 1L;
         }
         return 0L;
@@ -133,7 +121,7 @@ public abstract class ExpiringKeyValueStorage {
 
     public boolean exists(Slice slice) {
         if (values().containsRow(slice)) {
-            Long deadline = ttls().get(slice, Slice.reserved());
+            Long deadline = ttls().get(slice);
             if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
                 delete(slice, Slice.reserved());
                 return false;
