@@ -384,7 +384,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
 
-        Set<String> toCompare = new HashSet<String>();
+        Set<String> toCompare = new HashSet<>();
         toCompare.add(FIELD_1);
         toCompare.add(FIELD_2);
 
@@ -395,6 +395,25 @@ public class SimpleOperationsTest extends ComparisonBase {
         jedis.hset(HASH, FIELD_3, VALUE_3);
 
         result = jedis.hkeys(HASH);
+        assertEquals(result, toCompare);
+    }
+
+    @Theory
+    public void whenHVals_EnsureAllValuesReturned(Jedis jedis) {
+        String key = "my-hvals-key";
+        jedis.hset(key, FIELD_1, VALUE_1);
+        jedis.hset(key, FIELD_2, VALUE_2);
+
+        Set<String> toCompare = new HashSet<>();
+        toCompare.add(VALUE_1);
+        toCompare.add(VALUE_2);
+        Set<String> result = new HashSet<>(jedis.hvals(key));
+        assertEquals(result, toCompare);
+
+        toCompare.add(VALUE_3);
+        jedis.hset(key, FIELD_3, VALUE_3);
+
+        result = new HashSet<>(jedis.hvals(key));
         assertEquals(result, toCompare);
     }
 
