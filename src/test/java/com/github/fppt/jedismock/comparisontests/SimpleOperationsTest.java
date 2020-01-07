@@ -314,6 +314,15 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
+    public void ensureSismemberReturnsCorrectValues(Jedis jedis){
+        String key = "my-set-key-sismember";
+        jedis.sadd(key, "A", "B");
+        assertTrue(jedis.sismember(key, "A"));
+        assertFalse(jedis.sismember(key, "C"));
+        assertFalse(jedis.sismember(key + "-nonexistent", "A"));
+    }
+
+    @Theory
     public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis) {
         assertEquals(new Long(1L), jedis.hset(HASH, FIELD_1, VALUE_1));
         assertEquals(new Long(0L), jedis.hset(HASH, FIELD_1, VALUE_1));
