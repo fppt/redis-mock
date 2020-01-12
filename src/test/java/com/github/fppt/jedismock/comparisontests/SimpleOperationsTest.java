@@ -1,8 +1,7 @@
 package com.github.fppt.jedismock.comparisontests;
 
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisDataException;
@@ -13,11 +12,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Theories.class)
-public class SimpleOperationsTest extends ComparisonBase {
+@ExtendWith(ComparisonBase.class)
+public class SimpleOperationsTest {
 
     private String HASH = "hash";
     private String FIELD_1 = "field1";
@@ -29,7 +27,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     private String FIELD_4 = "field4";
     private String FIELD_5 = "field5";
 
-    @Theory
+    @TestTemplate
     public void whenSettingKeyAndRetrievingIt_CorrectResultIsReturned(Jedis jedis) {
         String key = "key";
         String value = "value";
@@ -39,14 +37,14 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.get(key));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingRpop_EnsureTheLastElementPushedIsReturned(Jedis jedis) {
         String key = "Another key";
         jedis.rpush(key, "1", "2", "3");
         assertEquals(jedis.rpop(key), "3");
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingRpoplpush_CorrectResultsAreReturned(Jedis jedis) {
         String list1key = "list 1";
         String list2key = "list 2";
@@ -86,7 +84,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(results2.contains("c"));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingFlushall_EnsureEverythingIsDeleted(Jedis jedis) {
         String key = "my-super-special-key";
         String value = "my-not-so-special-value";
@@ -98,7 +96,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNull(jedis.get(key));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingFlushdb_EnsureEverythingIsDeleted(Jedis jedis) {
         String key = "my-super-special-key";
         String value = "my-not-so-special-value";
@@ -110,7 +108,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNull(jedis.get(key));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingLrem_EnsureDeletionsWorkAsExpected(Jedis jedis) {
         String key = "my-super-special-sexy-key";
         String hello = "hello";
@@ -137,7 +135,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(foo, list.get(1));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingQuit_EnsureTheConnectionIsClosed(Jedis jedis) {
         //Create a new connection
         Client client = jedis.getClient();
@@ -145,12 +143,11 @@ public class SimpleOperationsTest extends ComparisonBase {
         newJedis.set("A happy lucky key", "A sad value");
         assertEquals("OK", newJedis.quit());
 
-        expectedException.expect(JedisConnectionException.class);
-
-        newJedis.set("A happy lucky key", "A sad value 2");
+        assertThrows(JedisConnectionException.class,
+            ()->newJedis.set("A happy lucky key", "A sad value 2"));
     }
 
-    @Theory
+    @TestTemplate
     public void whenConcurrentlyIncrementingAndDecrementingCount_EnsureFinalCountIsCorrect(
             Jedis jedis) throws ExecutionException, InterruptedException {
         String key = "my-count-tracker";
@@ -178,12 +175,12 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(25, Integer.parseInt(jedis.get(key)));
     }
 
-    @Theory
+    @TestTemplate
     public void whenPinging_Pong(Jedis jedis) {
         assertEquals("PONG", jedis.ping());
     }
 
-    @Theory
+    @TestTemplate
     public void whenGettingKeys_EnsureCorrectKeysAreReturned(Jedis jedis) {
         jedis.flushAll();
         jedis.mset("one", "1", "two", "2", "three", "3", "four", "4");
@@ -205,7 +202,7 @@ public class SimpleOperationsTest extends ComparisonBase {
                 "four"));
     }
 
-    @Theory
+    @TestTemplate
     public void whenAddingToASet_EnsureTheSetIsUpdated(Jedis jedis) {
         String key = "my-set-key";
         Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
@@ -217,14 +214,14 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(mySet, jedis.smembers(key));
     }
 
-    @Theory
+    @TestTemplate
     public void whenDuplicateValuesAddedToSet_ReturnsAddedValuesCountOnly(Jedis jedis) {
         String key = "my-set-key-sadd";
         assertEquals(3, jedis.sadd(key, "A", "B", "C", "B").intValue());
         assertEquals(1, jedis.sadd(key, "A", "C", "E", "B").intValue());
     }
 
-    @Theory
+    @TestTemplate
     public void whenIncrementingSet_ensureValuesAreCorrect(Jedis jedis) {
         String key = "my-set-key-hincr";
         jedis.hset(key, "E", "3.14e1");
@@ -258,7 +255,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(31.41, jedis.hincrByFloat(key, "E", 0.01), 0.00001);
     }
 
-    @Theory
+    @TestTemplate
     public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis) {
         String key = "my-counted-set-key";
         Set<String> mySet = new HashSet<>(Arrays.asList("d", "e", "f"));
@@ -270,13 +267,13 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(mySet.size(), jedis.scard(key).intValue());
     }
 
-    @Theory
+    @TestTemplate
     public void whenCalledForNonExistentSet_ensureScardReturnsZero(Jedis jedis) {
         String key = "non-existent";
         assertEquals(0, jedis.scard(key).intValue());
     }
 
-    @Theory
+    @TestTemplate
     public void whenRemovingFromASet_EnsureTheSetIsUpdated(Jedis jedis) {
         String key = "my-set-key";
         Set<String> mySet = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
@@ -295,7 +292,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(2, removed);
     }
 
-    @Theory
+    @TestTemplate
     public void whenPoppingFromASet_EnsureTheSetIsUpdated(Jedis jedis) {
 
         String key = "my-set-key-spop";
@@ -308,12 +305,12 @@ public class SimpleOperationsTest extends ComparisonBase {
         do {
             poppedValue = jedis.spop(key);
             if (poppedValue != null) {
-                assertTrue("Popped value not in set", mySet.contains(poppedValue));
+                assertTrue(mySet.contains(poppedValue), "Popped value not in set");
             }
         } while (poppedValue != null);
     }
 
-    @Theory
+    @TestTemplate
     public void ensureSismemberReturnsCorrectValues(Jedis jedis){
         String key = "my-set-key-sismember";
         jedis.sadd(key, "A", "B");
@@ -322,13 +319,13 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertFalse(jedis.sismember(key + "-nonexistent", "A"));
     }
 
-    @Theory
+    @TestTemplate
     public void whenHSettingOnTheSameKeys_EnsureReturnTypeIs1WhenKeysAreNew(Jedis jedis) {
         assertEquals(new Long(1L), jedis.hset(HASH, FIELD_1, VALUE_1));
         assertEquals(new Long(0L), jedis.hset(HASH, FIELD_1, VALUE_1));
     }
 
-    @Theory
+    @TestTemplate
     public void whenHSettingAndHGetting_EnsureValuesAreSetAndRetreived(Jedis jedis) {
         String field = "my-field";
         String hash = "my-hash";
@@ -339,7 +336,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.hget(hash, field));
     }
 
-    @Theory
+    @TestTemplate
     public void whenHSettingAndHGetting_EnsureValuesAreSetAndExist(Jedis jedis) {
         String field = "my-field";
         String hash = "my-hash";
@@ -350,7 +347,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(jedis.hexists(hash, field));
     }
 
-    @Theory
+    @TestTemplate
     public void whenHDeleting_EnsureValuesAreRemoved(Jedis jedis) {
         String field = "my-field-2";
         String hash = "my-hash-2";
@@ -363,7 +360,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNull(jedis.hget(hash, field));
     }
 
-    @Theory
+    @TestTemplate
     public void whenHGetAll_EnsureAllKeysAndValuesReturned(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
@@ -388,7 +385,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(0, result.size());
     }
 
-    @Theory
+    @TestTemplate
     public void whenHKeys_EnsureAllKeysReturned(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
@@ -407,7 +404,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(result, toCompare);
     }
 
-    @Theory
+    @TestTemplate
     public void whenHVals_EnsureAllValuesReturned(Jedis jedis) {
         String key = "my-hvals-key";
         jedis.hset(key, FIELD_1, VALUE_1);
@@ -426,7 +423,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(result, toCompare);
     }
 
-    @Theory
+    @TestTemplate
     public void whenHLen_EnsureCorrectLengthReturned(Jedis jedis) {
         jedis.flushDB();
 
@@ -438,7 +435,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(2, result);
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingHsinter_EnsureSetIntersectionIsReturned(Jedis jedis) {
         String key1 = "my-set-key-1";
         Set<String> mySet1 = new HashSet<>(Arrays.asList("a", "b", "c", "d"));
@@ -462,7 +459,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(expectedIntersection2, intersection);
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingHMget_EnsureAllValuesReturnedForEachField(Jedis jedis) {
         jedis.hset(HASH, FIELD_1, VALUE_1);
         jedis.hset(HASH, FIELD_2, VALUE_2);
@@ -478,7 +475,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNull(result.get(4));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingHMset_EnsureAllValuesAreSetForEachField(Jedis jedis) {
         Map<String, String> map = new HashMap<>();
         map.put(FIELD_1, VALUE_1);
@@ -494,7 +491,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_2));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingHsetnx_EnsureValueIsOnlyPutIfOtherValueDoesNotExist(Jedis jedis) {
         assertNull(jedis.hget(HASH, FIELD_3));
         jedis.hsetnx(HASH, FIELD_3, VALUE_1);
@@ -503,12 +500,12 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
     }
 
-    @Theory
+    @TestTemplate
     public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis) {
         assertNotNull(jedis.info());
     }
 
-    @Theory
+    @TestTemplate
     public void whenCreatingKeys_existsValuesUpdated(Jedis jedis) {
         jedis.set("foo", "bar");
         assertTrue(jedis.exists("foo"));
@@ -519,7 +516,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(jedis.exists("bar"));
     }
 
-    @Theory
+    @TestTemplate
     public void deletionRemovesKeys(Jedis jedis) {
         String key1 = "hey_toremove";
         String key2 = "hmap_toremove";
@@ -533,7 +530,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertFalse(jedis.exists(key2));
     }
 
-    @Theory
+    @TestTemplate
     public void timeReturnsCurrentTime(Jedis jedis) {
         long currentTime = System.currentTimeMillis() / 1000;
         List<String> time = jedis.time();
@@ -543,7 +540,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         Long.parseLong(time.get(1));
     }
 
-    @Theory
+    @TestTemplate
     public void scanReturnsAllKey(Jedis jedis) {
 
         jedis.flushDB();
@@ -562,7 +559,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(result.getResult().contains(key2));
     }
 
-    @Theory
+    @TestTemplate
     public void scanReturnsMatchingKey(Jedis jedis) {
 
         jedis.flushDB();
@@ -581,7 +578,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(result.getResult().contains(key));
     }
 
-    @Theory
+    @TestTemplate
     public void scanIterates(Jedis jedis) {
 
         jedis.flushDB();
@@ -597,7 +594,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
     }
 
-    @Theory
+    @TestTemplate
     public void sscanReturnsAllValues(Jedis jedis) {
 
         jedis.flushDB();
@@ -616,7 +613,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(result.getResult().contains(values[1]));
     }
 
-    @Theory
+    @TestTemplate
     public void sscanReturnsPartialSet(Jedis jedis) {
 
         jedis.flushDB();
@@ -633,7 +630,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
     }
 
-    @Theory
+    @TestTemplate
     public void sscanReturnsMatchingSet(Jedis jedis) {
 
         jedis.flushDB();
@@ -654,7 +651,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(result.getResult().contains(values[0]));
     }
 
-    @Theory
+    @TestTemplate
     public void sscanIterates(Jedis jedis) {
 
         jedis.flushDB();
@@ -681,7 +678,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(results.containsAll(Arrays.asList(values)));
     }
 
-    @Theory
+    @TestTemplate
     public void zaddAddsKey(Jedis jedis) {
 
         jedis.flushDB();
@@ -700,7 +697,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, results.get(0));
     }
 
-    @Theory
+    @TestTemplate
     public void zaddAddsKeys(Jedis jedis) {
 
         jedis.flushDB();
@@ -721,7 +718,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals("myvalue2", results.get(1));
     }
 
-    @Theory
+    @TestTemplate
     public void zcardEmptyKey(Jedis jedis) {
         jedis.flushDB();
 
@@ -732,7 +729,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(0L, result);
     }
 
-    @Theory
+    @TestTemplate
     public void zcardReturnsCount(Jedis jedis) {
         jedis.flushDB();
 
@@ -748,7 +745,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(2L, result);
     }
 
-    @Theory
+    @TestTemplate
     public void zremRemovesKey(Jedis jedis) {
 
         jedis.flushDB();
@@ -778,7 +775,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals("myvalue2", results.get(0));
     }
 
-    @Theory
+    @TestTemplate
     public void zrangeKeysCorrectOrder(Jedis jedis) {
 
         jedis.flushDB();
@@ -803,7 +800,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals("myvalue4", results.get(3));
     }
 
-    @Theory
+    @TestTemplate
     public void zrangeIndexOutOfRange(Jedis jedis) {
 
         jedis.flushDB();
@@ -824,7 +821,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(0, results.size());
     }
 
-    @Theory
+    @TestTemplate
     public void zrangeWithScores(Jedis jedis) {
         jedis.flushDB();
 
@@ -852,7 +849,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(20d, results.get(3).getScore(), 0);
     }
 
-    @Theory
+    @TestTemplate
     public void zrangebylexKeysCorrectOrder(Jedis jedis) {
         jedis.flushDB();
 
@@ -882,7 +879,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals("ccc", results.get(1));
     }
 
-    @Theory
+    @TestTemplate
     public void incrDoesNotClearTtl(Jedis jedis) {
         jedis.flushDB();
 
@@ -896,7 +893,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(ttl > 0);
     }
 
-    @Theory
+    @TestTemplate
     public void incrByDoesNotClearTtl(Jedis jedis) {
         jedis.flushDB();
 
@@ -910,7 +907,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(ttl > 0);
     }
 
-    @Theory
+    @TestTemplate
     public void decrDoesNotClearTtl(Jedis jedis) {
         jedis.flushDB();
 
@@ -924,7 +921,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(ttl > 0);
     }
 
-    @Theory
+    @TestTemplate
     public void decrByDoesNotClearTtl(Jedis jedis) {
         jedis.flushDB();
 
@@ -938,7 +935,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(ttl > 0);
     }
 
-    @Theory
+    @TestTemplate
     public void dbSizeReturnsCount(Jedis jedis) {
         jedis.flushDB();
 
@@ -952,7 +949,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(2, result);
     }
 
-    @Theory
+    @TestTemplate
     public void hashExpires(Jedis jedis) throws InterruptedException {
         jedis.flushDB();
 

@@ -1,21 +1,20 @@
 package com.github.fppt.jedismock;
 
 import com.github.fppt.jedismock.commands.RedisCommandParser;
-import com.github.fppt.jedismock.server.RedisOperationExecutor;
-import com.github.fppt.jedismock.exception.EOFException;
 import com.github.fppt.jedismock.exception.ParseErrorException;
+import com.github.fppt.jedismock.server.RedisOperationExecutor;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Xiaolu on 2015/4/20.
@@ -46,35 +45,35 @@ public class TestRedisOperationExecutor {
         return "*1" + CRLF + "$-1" + CRLF;
     }
 
-    private void assertCommandEquals(String expect, String command) throws ParseErrorException, EOFException {
+    private void assertCommandEquals(String expect, String command) throws ParseErrorException {
         assertEquals(bulkString(expect), executor.execCommand(RedisCommandParser.parse(command)).toString());
     }
 
-    private void assertCommandEquals(long expect, String command) throws ParseErrorException, EOFException {
+    private void assertCommandEquals(long expect, String command) throws ParseErrorException {
         assertEquals(Response.integer(expect), executor.execCommand(RedisCommandParser.parse(command)));
     }
 
-    private void assertCommandEquals(double expect, String command) throws ParseErrorException, EOFException {
+    private void assertCommandEquals(double expect, String command) throws ParseErrorException {
         assertEquals(Response.doubleValue(expect), executor.execCommand(RedisCommandParser.parse(command)));
     }
 
-    private void assertCommandArrayEquals(String expectedArray, String command) throws ParseErrorException, EOFException {
+    private void assertCommandArrayEquals(String expectedArray, String command) throws ParseErrorException {
         assertEquals(expectedArray, executor.execCommand(RedisCommandParser.parse(command)).toString());
     }
 
-    private void assertCommandNull(String command) throws ParseErrorException, EOFException {
+    private void assertCommandNull(String command) throws ParseErrorException {
         assertEquals(Response.NULL, executor.execCommand(RedisCommandParser.parse(command)));
     }
 
-    private void assertCommandOK(String command) throws ParseErrorException, EOFException {
+    private void assertCommandOK(String command) throws ParseErrorException {
         assertEquals(Response.OK, executor.execCommand(RedisCommandParser.parse(command)));
     }
 
-    private void assertCommandError(String command) throws ParseErrorException, EOFException {
+    private void assertCommandError(String command) throws ParseErrorException {
         assertEquals('-', executor.execCommand(RedisCommandParser.parse(command)).data()[0]);
     }
 
-    @Before
+    @BeforeEach
     public void initCommandExecutor() {
         //TODO: Mock out the client here
         Map<Integer, RedisBase> redisBases = new HashMap<>();
@@ -84,7 +83,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testSetAndGet() throws ParseErrorException, EOFException {
+    public void testSetAndGet() throws ParseErrorException {
         assertCommandNull(array("GET", "ab"));
         assertCommandOK(array("SET", "ab", "abc"));
         assertCommandEquals("abc", array("GET", "ab"));
@@ -94,12 +93,12 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testUnknownCommand() throws ParseErrorException, EOFException {
+    public void testUnknownCommand() throws ParseErrorException {
         assertCommandError(array("unknown"));
     }
 
     @Test
-    public void testExpire() throws ParseErrorException, InterruptedException, EOFException {
+    public void testExpire() throws ParseErrorException, InterruptedException {
         assertCommandEquals(0, array("expire", "ab", "1"));
         assertCommandOK(array("SET", "ab", "abd"));
         assertCommandEquals(1, array("expire", "ab", "1"));
@@ -110,7 +109,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testTTL() throws ParseErrorException, InterruptedException, EOFException {
+    public void testTTL() throws ParseErrorException, InterruptedException {
         assertCommandEquals(-2, array("ttl", "ab"));
         assertCommandOK(array("SET", "ab", "abd"));
         assertCommandEquals(-1, array("ttl", "ab"));
@@ -123,7 +122,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testPTTL() throws ParseErrorException, InterruptedException, EOFException {
+    public void testPTTL() throws ParseErrorException, InterruptedException {
         assertCommandEquals(-2, array("pttl", "ab"));
         assertCommandOK(array("SET", "ab", "abd"));
         assertCommandEquals(-1, array("pttl", "ab"));
@@ -136,7 +135,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testIncr() throws ParseErrorException, EOFException {
+    public void testIncr() throws ParseErrorException {
         assertCommandEquals(1, array("incr", "a"));
         assertCommandEquals(2, array("incr", "a"));
         assertCommandOK(array("set", "a", "b"));
@@ -144,7 +143,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testIncrBy() throws ParseErrorException, EOFException {
+    public void testIncrBy() throws ParseErrorException {
         assertCommandEquals(5, array("incrby", "a", "5"));
         assertCommandEquals(11, array("incrby", "a", "6"));
         assertCommandOK(array("set", "a", "b"));
@@ -154,7 +153,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testIncrByFloat() throws ParseErrorException, EOFException {
+    public void testIncrByFloat() throws ParseErrorException {
         assertCommandEquals(5.0, array("incrbyfloat", "a", "5"));
         assertCommandEquals(11.01, array("incrbyfloat", "a", "6.01"));
         assertCommandEquals(9.51, array("incrbyfloat", "a", "-1.5"));
@@ -163,7 +162,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testDecr() throws ParseErrorException, EOFException {
+    public void testDecr() throws ParseErrorException {
         assertCommandEquals(-1, array("decr", "a"));
         assertCommandEquals(-2, array("decr", "a"));
         assertCommandOK(array("set", "a", "b"));
@@ -171,7 +170,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testDecrBy() throws ParseErrorException, EOFException {
+    public void testDecrBy() throws ParseErrorException {
         assertCommandEquals(-5, array("decrby", "a", "5"));
         assertCommandEquals(-11, array("decrby", "a", "6"));
         assertCommandOK(array("set", "a", "b"));
@@ -179,7 +178,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testHll() throws ParseErrorException, EOFException {
+    public void testHll() throws ParseErrorException {
         assertCommandEquals(1, array("pfadd", "a", "b", "c"));
         assertCommandEquals(0, array("pfadd", "a", "b", "c"));
         assertCommandEquals(2, array("pfcount", "a"));
@@ -198,14 +197,14 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testAppend() throws ParseErrorException, EOFException {
+    public void testAppend() throws ParseErrorException {
         assertCommandEquals(3, array("append", "ab", "abc"));
         assertCommandEquals(6, array("append", "ab", "abc"));
         assertCommandEquals("abcabc", array("GET", "ab"));
     }
 
     @Test
-    public void testSetAndGetBit() throws ParseErrorException, EOFException {
+    public void testSetAndGetBit() throws ParseErrorException {
         assertCommandEquals(0, array("getbit", "mykey", "7"));
         assertCommandEquals(0, array("setbit", "mykey", "7", "1"));
         assertCommandEquals(1, array("getbit", "mykey", "7"));
@@ -227,14 +226,14 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testSetex() throws ParseErrorException, EOFException {
+    public void testSetex() throws ParseErrorException {
         assertCommandOK(array("SETex", "ab", "100", "k"));
         assertCommandEquals(100, array("ttl", "ab"));
         assertCommandError(array("SETex", "ab", "10a", "k"));
     }
 
     @Test
-    public void testPsetex() throws ParseErrorException, EOFException {
+    public void testPsetex() throws ParseErrorException {
         assertCommandOK(array("pSETex", "ab", "99", "k"));
         assertTrue(executor.execCommand(RedisCommandParser.parse(array("pttl", "ab"))).compareTo(Response.integer(90)) > 0);
         assertTrue(executor.execCommand(RedisCommandParser.parse(array("pttl", "ab"))).compareTo(Response.integer(99)) <= 0);
@@ -242,7 +241,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testSetnx() throws ParseErrorException, EOFException {
+    public void testSetnx() throws ParseErrorException {
         assertCommandEquals(1, array("setnx", "k", "vvv"));
         assertCommandEquals("vvv", array("get", "k"));
         assertCommandEquals(0, array("setnx", "k", "ggg"));
@@ -250,7 +249,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testMset() throws ParseErrorException, EOFException {
+    public void testMset() throws ParseErrorException {
         assertCommandOK(array("mset", "k1", "a", "k2", "b"));
         assertCommandEquals("a", array("GET", "k1"));
         assertCommandEquals("b", array("GET", "k2"));
@@ -258,7 +257,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testMget() throws ParseErrorException, EOFException {
+    public void testMget() throws ParseErrorException {
         assertCommandOK(array("SET", "a", "abc"));
         assertCommandOK(array("SET", "b", "abd"));
 
@@ -267,34 +266,34 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testGetset() throws ParseErrorException, EOFException {
+    public void testGetset() throws ParseErrorException {
         assertCommandNull(array("getSET", "a", "abc"));
         assertCommandEquals("abc", array("getSET", "a", "abd"));
     }
 
     @Test
-    public void testHmsetAndHmget() throws EOFException {
+    public void testHmsetAndHmget() {
         assertCommandOK(array("hmset", "h", "a", "v1", "b", "v2"));
         assertCommandArrayEquals(array("v1"), array("hmget", "h", "a"));
         assertCommandArrayEquals(array("v2"), array("hmget", "h", "b"));
     }
 
     @Test
-    public void testDelHash() throws EOFException {
+    public void testDelHash() {
         assertCommandOK(array("hmset","h", "a", "v1", "b", "v2"));
         assertCommandEquals(1, array("del", "h"));
         assertCommandArrayEquals(nullArray(), array("hmget", "h", "a"));
     }
 
     @Test
-    public void testStrlen() throws ParseErrorException, EOFException {
+    public void testStrlen() throws ParseErrorException {
         assertCommandEquals(0, array("strlen", "a"));
         assertCommandOK(array("SET", "a", "abd"));
         assertCommandEquals(3, array("strlen", "a"));
     }
 
     @Test
-    public void testDel() throws ParseErrorException, EOFException {
+    public void testDel() throws ParseErrorException {
         assertCommandOK(array("set", "a", "v"));
         assertCommandOK(array("set", "b", "v"));
         assertCommandEquals(2, array("del", "a", "b", "c"));
@@ -303,14 +302,14 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testExists() throws ParseErrorException, EOFException {
+    public void testExists() throws ParseErrorException {
         assertCommandOK(array("set", "a", "v"));
         assertCommandEquals(1, array("exists", "a"));
         assertCommandEquals(0, array("exists", "b"));
     }
 
     @Test
-    public void testExpireAt() throws ParseErrorException, EOFException {
+    public void testExpireAt() throws ParseErrorException {
         assertCommandOK(array("set", "a", "v"));
         assertCommandEquals(1, array("expireat", "a", "1293840000"));
         assertCommandEquals(0, array("exists", "a"));
@@ -322,7 +321,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testPexpireAt() throws ParseErrorException, EOFException {
+    public void testPexpireAt() throws ParseErrorException {
         assertCommandOK(array("set", "a", "v"));
         assertCommandEquals(1, array("pexpireat", "a", "1293840000000"));
         assertCommandEquals(0, array("exists", "a"));
@@ -335,14 +334,14 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testPexpire() throws ParseErrorException, EOFException {
+    public void testPexpire() throws ParseErrorException {
         assertCommandOK(array("set", "a", "v"));
         assertCommandEquals(1, array("pexpire", "a", "1500000"));
         assertCommandEquals(1500, array("ttl", "a"));
     }
 
     @Test
-    public void testLpush() throws ParseErrorException, EOFException {
+    public void testLpush() throws ParseErrorException {
         assertCommandEquals(1, array("lpush", "mylist", "!"));
         assertCommandEquals(3, array("lpush", "mylist", "world", "hello"));
         assertEquals(array("hello", "world", "!"),
@@ -352,7 +351,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testLrange() throws ParseErrorException, EOFException {
+    public void testLrange() throws ParseErrorException {
         assertEquals(array(),
                 executor.execCommand(RedisCommandParser.parse(array("lrange", "mylist", "0", "-1"))).toString());
         assertCommandEquals(3, array("lpush", "mylist", "1", "2", "3"));
@@ -370,7 +369,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testLlen() throws ParseErrorException, EOFException {
+    public void testLlen() throws ParseErrorException {
         assertCommandEquals(0, array("llen", "a"));
         assertCommandEquals(3, array("lpush", "mylist", "3", "2", "1"));
         assertCommandEquals(3, array("llen", "mylist"));
@@ -379,7 +378,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testLpushx() throws ParseErrorException, EOFException {
+    public void testLpushx() throws ParseErrorException {
         assertCommandEquals(1, array("lpush", "a", "1"));
         assertCommandEquals(2, array("lpushx", "a", "2"));
         assertEquals(array("2", "1"),
@@ -390,7 +389,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testLpop() throws ParseErrorException, EOFException {
+    public void testLpop() throws ParseErrorException {
         assertCommandEquals(2, array("lpush", "list", "2", "1"));
         assertCommandEquals("1", array("lpop", "list"));
         assertCommandEquals("2", array("lpop", "list"));
@@ -401,7 +400,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testLindex() throws ParseErrorException, EOFException {
+    public void testLindex() throws ParseErrorException {
         assertCommandEquals(2, array("lpush", "list", "1", "2"));
         assertCommandEquals("2", array("lindex", "list", "0"));
         assertCommandEquals("1", array("lindex", "list", "-1"));
@@ -414,7 +413,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testRpush() throws ParseErrorException, EOFException {
+    public void testRpush() throws ParseErrorException {
         assertCommandEquals(1, array("rpush", "mylist", "!"));
         assertCommandEquals(3, array("rpush", "mylist", "world", "hello"));
         assertEquals(array("!", "world", "hello"),
@@ -424,7 +423,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testRename() throws EOFException {
+    public void testRename() {
         assertCommandError(array("rename", "old", "new"));
         assertCommandNull(array("get", "new"));
         assertCommandOK(array("set", "old", "abc"));
@@ -434,7 +433,7 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
-    public void testRenameHash() throws EOFException {
+    public void testRenameHash() {
         assertCommandEquals(1, array("hset", "old", "a", "1"));
         assertCommandOK(array("rename", "old", "new"));
         assertCommandEquals("1", array("hget", "new", "a"));

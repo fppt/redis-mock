@@ -1,14 +1,14 @@
 package com.github.fppt.jedismock;
 
 import com.github.fppt.jedismock.server.ServiceOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.net.BindException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Xiaolu on 2015/4/18.

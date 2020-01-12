@@ -2,10 +2,9 @@ package com.github.fppt.jedismock.comparisontests;
 
 
 import com.github.fppt.jedismock.util.MockSubscriber;
-import org.junit.Ignore;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
@@ -18,12 +17,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Theories.class)
-public class AdvanceOperationsTest extends ComparisonBase {
+@ExtendWith(ComparisonBase.class)
+public class AdvanceOperationsTest {
 
-    @Theory
+    @TestTemplate
     public void whenTransactionWithMultiplePushesIsExecuted_EnsureResultsAreSaved(Jedis jedis) {
         String key = "my-list";
         assertEquals(new Long(0), jedis.llen(key));
@@ -37,21 +36,19 @@ public class AdvanceOperationsTest extends ComparisonBase {
         assertEquals(new Long(3), jedis.llen(key));
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingTransactionAndTryingToAccessJedis_Throw(Jedis jedis) {
         //Do Something random with Jedis
         assertNull(jedis.get("oobity-oobity-boo"));
 
         //Start transaction
-        Transaction transaction = jedis.multi();
-
-        expectedException.expect(JedisDataException.class);
-        expectedException.expectMessage("Cannot use Jedis when in Multi. Please use Transation or reset jedis state.");
-
-        jedis.get("oobity-oobity-boo");
+        jedis.multi();
+        assertEquals("Cannot use Jedis when in Multi. Please use Transation or reset jedis state.",
+                assertThrows(JedisDataException.class, () ->
+                        jedis.get("oobity-oobity-boo")).getMessage());
     }
 
-    @Theory
+    @TestTemplate
     public void whenSubscribingToAChannel_EnsurePublishedMessagesAreReceived(Jedis jedis) throws InterruptedException {
         String channel = "normalbob";
         String message = "SUPERBOB";
@@ -81,7 +78,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
         subsciberThread.shutdownNow();
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingBrpoplpush_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
         String list1key = "source list";
         String list2key = "target list";
@@ -111,7 +108,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
         assertEquals(4, results.size());
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingBrpoplpushAndReachingTimeout_Return(Jedis jedis) {
         String list1key = "another source list";
         String list2key = "another target list";
@@ -121,7 +118,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
         assertNull(result);
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingBrpoplpush_EnsureClientCanStillGetOtherResponsesInTimelyManner(Jedis jedis) {
         String list1key = "another another source list";
         String list2key = "another another target list";
@@ -149,9 +146,9 @@ public class AdvanceOperationsTest extends ComparisonBase {
         assertEquals("v5", jedis.get("k5"));
     }
 
-    @Ignore("This test fails with the embedded redis sometimes so I am at a loss")
-    @Theory
-    public void whenSubscribingToAChannelAndThenUnsubscribing_EnsureAllChannelsAreUbSubScribed(Jedis jedis) throws InterruptedException, ExecutionException {
+    @Disabled("This test fails with the embedded redis sometimes so I am at a loss")
+    @TestTemplate
+    public void whenSubscribingToAChannelAndThenUnsubscribing_EnsureAllChannelsAreUbSubScribed(Jedis jedis) throws InterruptedException {
         String channel1 = "normaltim1";
         String channel2 = "normaltim2";
         //String channel3 = "normaltim3";
@@ -195,7 +192,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
         }, channel);
     }
 
-    @Theory
+    @TestTemplate
     public void whenChangingBetweenRedisDBS_EnsureChangesAreMutuallyExclusive(Jedis jedis) {
         String key1 = "k1";
         String key2 = "k2";
@@ -227,7 +224,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
     }
 
 
-    @Theory
+    @TestTemplate
     public void whenUsingBlpop_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
         String key = "list1_kfubdjkfnv";
         jedis.rpush(key, "d", "e", "f");
@@ -248,7 +245,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
     }
 
 
-    @Theory
+    @TestTemplate
     public void whenUsingBlpop_EnsureItBlocksAndCorrectResultsAreReturnedOnMultipleList(Jedis jedis) throws ExecutionException, InterruptedException {
         String list1key = "list1_dkjfnvdk";
         String list2key = "list2_kjvnddkf";
@@ -276,7 +273,7 @@ public class AdvanceOperationsTest extends ComparisonBase {
         assertEquals(3, results.size());
     }
 
-    @Theory
+    @TestTemplate
     public void whenUsingBlpop_EnsureItTimeout(Jedis jedis) throws ExecutionException, InterruptedException {
         String list1key = "list1_kdjfnvdsu";
         String list2key = "list2_mbhkdushy";

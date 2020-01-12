@@ -1,22 +1,17 @@
 package com.github.fppt.jedismock;
 
 import com.github.fppt.jedismock.server.Slice;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 /**
  * Created by Xiaolu on 2015/4/20.
  */
 public class TestUtils {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void testCloseQuietly() {
