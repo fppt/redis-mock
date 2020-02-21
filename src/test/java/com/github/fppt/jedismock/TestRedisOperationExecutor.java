@@ -440,4 +440,14 @@ public class TestRedisOperationExecutor {
         assertCommandNull(array("get", "old"));
     }
 
+    @Test
+    public void testRenameHashWithExistingValues() {
+        assertCommandEquals(1, array("hset", "old", "a", "1"));
+        assertCommandEquals(1, array("hset", "new", "z", "2"));
+        assertCommandOK(array("rename", "old", "new"));
+        assertCommandEquals("1", array("hget", "new", "a"));
+        assertCommandNull(array("hget", "new", "z"));
+        assertCommandNull(array("get", "old"));
+    }
+
 }
