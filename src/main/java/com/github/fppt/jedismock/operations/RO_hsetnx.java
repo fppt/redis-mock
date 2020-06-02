@@ -14,7 +14,6 @@ class RO_hsetnx extends RO_hset {
         Slice foundValue = base().getValue(key1, key2);
         if(foundValue == null){
             base().putValue(key1, key2, value, -1L);
-            foundValue = value;
         }
         return foundValue;
     }

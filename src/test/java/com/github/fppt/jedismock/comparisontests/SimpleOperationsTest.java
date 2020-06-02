@@ -494,9 +494,9 @@ public class SimpleOperationsTest {
     @TestTemplate
     public void whenUsingHsetnx_EnsureValueIsOnlyPutIfOtherValueDoesNotExist(Jedis jedis) {
         assertNull(jedis.hget(HASH, FIELD_3));
-        jedis.hsetnx(HASH, FIELD_3, VALUE_1);
+        assertEquals(1, jedis.hsetnx(HASH, FIELD_3, VALUE_1));
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
-        jedis.hsetnx(HASH, FIELD_3, VALUE_2);
+        assertEquals(0, jedis.hsetnx(HASH, FIELD_3, VALUE_2));
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
     }
 
