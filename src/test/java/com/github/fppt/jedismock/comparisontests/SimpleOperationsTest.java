@@ -504,6 +504,11 @@ public class SimpleOperationsTest {
     }
 
     @TestTemplate
+    public void whenSettingClientName_EnsureOkResponseIsReturned(Jedis jedis) {
+        assertEquals("OK", jedis.clientSetname("P.Myo"));
+    }
+
+    @TestTemplate
     public void whenCreatingKeys_existsValuesUpdated(Jedis jedis) {
         jedis.set("foo", "bar");
         assertTrue(jedis.exists("foo"));
