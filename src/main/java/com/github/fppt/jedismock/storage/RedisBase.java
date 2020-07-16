@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RedisBase {
     private final ExpiringKeyValueStorage keyValueStorage = ExpiringKeyValueStorage.create();
     private final Map<Slice, Set<RedisClient>> subscribers = new ConcurrentHashMap<>();
+    private final Map<Slice, Slice> configs = new ConcurrentHashMap<>();
 
     public RedisBase() {}
 
@@ -119,5 +120,16 @@ public class RedisBase {
 
     public boolean exists(Slice slice) {
         return keyValueStorage.exists(slice);
+    }
+
+    public Slice getConfig(Slice config) {
+        if (configs.containsKey(config)) {
+            return configs.get(config);
+        }
+        return Slice.create(new byte[] {});
+    }
+
+    public void setConfig(Slice config, Slice value) {
+        configs.put(config, value);
     }
 }

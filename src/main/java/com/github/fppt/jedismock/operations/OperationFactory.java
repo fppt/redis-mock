@@ -117,6 +117,8 @@ public class OperationFactory {
                 return Optional.of(new RO_auth(state));
             case "exec":
                 return Optional.of(new RO_exec(state));
+            case "config":
+                return Optional.of(new RO_config(state, params));
             default:
                 return Optional.empty();
         }

@@ -506,6 +506,25 @@ public class SimpleOperationsTest {
     }
 
     @TestTemplate
+    public void whenGetNonExistentConfig_EnsureEmptyResultIsReturned(Jedis jedis) {
+        List<String> results = jedis.configGet("requirepass");
+        assertEquals(2, results.size());
+        assertEquals("requirepass", results.get(0));
+        assertEquals("", results.get(1));
+    }
+
+    @TestTemplate
+    public void whenSetConfig_EnsureOkResponseIsReturned(Jedis jedis) {
+        String configKey = "notify-keyspace-events";
+
+        assertEquals("OK", jedis.configSet(configKey, "AKE"));
+
+        List<String> result = jedis.configGet(configKey);
+        assertEquals(configKey, result.get(0));
+        assertEquals("AKE", result.get(1));
+    }
+
+    @TestTemplate
     public void whenCreatingKeys_existsValuesUpdated(Jedis jedis) {
         jedis.set("foo", "bar");
         assertTrue(jedis.exists("foo"));
