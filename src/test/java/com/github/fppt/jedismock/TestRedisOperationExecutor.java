@@ -286,6 +286,15 @@ public class TestRedisOperationExecutor {
     }
 
     @Test
+    public void testHset() {
+        assertCommandEquals(2, array("hset", "h", "a", "v1", "b", "v2"));
+        assertCommandEquals(1, array("hset", "h", "a", "v1", "c", "v3"));
+        assertCommandArrayEquals(array("v1"), array("hmget", "h", "a"));
+        assertCommandArrayEquals(array("v2"), array("hmget", "h", "b"));
+        assertCommandArrayEquals(array("v3"), array("hmget", "h", "c"));
+    }
+
+    @Test
     public void testStrlen() throws ParseErrorException {
         assertCommandEquals(0, array("strlen", "a"));
         assertCommandOK(array("SET", "a", "abd"));
