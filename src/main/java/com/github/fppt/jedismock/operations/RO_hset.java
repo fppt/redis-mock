@@ -17,16 +17,21 @@ class RO_hset extends AbstractRedisOperation {
         return foundValue;
     }
 
+    @Override
     Slice response() {
-        Slice key1 = params().get(0);
-        Slice key2 = params().get(1);
-        Slice value = params().get(2);
-        Slice oldValue = hsetValue(key1, key2, value);
+        Slice hash = params().get(0);
+        int count = 0;
 
-        if(oldValue == null){
-            return Response.integer(1);
-        } else {
-            return Response.integer(0);
+        for(int i = 1; i < params().size(); i = i + 2){
+            Slice field = params().get(i);
+            Slice value = params().get(i+1);
+            Slice oldValue = hsetValue(hash, field, value);
+
+            if(oldValue == null) {
+                count++;
+            }
         }
+
+        return Response.integer(count);
     }
 }
