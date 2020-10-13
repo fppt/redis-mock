@@ -965,4 +965,24 @@ public class SimpleOperationsTest {
 
         assertNull(result);
     }
+    
+    @TestTemplate
+    public void zscore(Jedis jedis) {
+        jedis.flushDB();
+        
+        String key = "a_key";
+        Map<String, Double> members = new HashMap<>();
+        members.put("aaa", 0d);
+        members.put("bbb", 1d);
+        members.put("ddd", 1d);
+        
+        long result = jedis.zadd(key, members);
+        assertEquals(3L, result); 
+       
+        assertEquals(0d, jedis.zscore(key, "aaa"));
+        assertEquals(1d, jedis.zscore(key, "bbb"));
+        assertEquals(1d, jedis.zscore(key, "ddd"));
+        assertNull(jedis.zscore(key, "ccc"));
+    }
+    
 }
