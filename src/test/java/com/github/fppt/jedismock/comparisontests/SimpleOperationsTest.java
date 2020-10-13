@@ -965,4 +965,35 @@ public class SimpleOperationsTest {
 
         assertNull(result);
     }
+    
+    @TestTemplate
+    public void zrevrangebylexKeysCorrectOrder(Jedis jedis) {
+        jedis.flushDB();
+
+        String key = "mykey";
+        Map<String, Double> members = new HashMap<>();
+        members.put("bbb", 0d);
+        members.put("ddd", 0d);
+        members.put("ccc", 0d);
+        members.put("aaa", 0d);
+
+        long result = jedis.zadd(key, members);
+
+        assertEquals(4L, result);
+
+        List<String> results = new ArrayList<>(jedis.zrevrangeByLex(key, "+", "-"));
+
+        assertEquals(4, results.size());
+        assertEquals("ddd", results.get(0));
+        assertEquals("ccc", results.get(1));
+        assertEquals("bbb", results.get(2));
+        assertEquals("aaa", results.get(3));
+
+        results = new ArrayList<>(jedis.zrevrangeByLex(key, "[ddd", "(bbb"));
+
+        assertEquals(2, results.size());
+        assertEquals("ddd", results.get(0));
+        assertEquals("ccc", results.get(1));
+    }
+    
 }
