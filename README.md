@@ -13,9 +13,9 @@ Add it as a dependency in Maven as:
 
 ```xml
 <dependency>
-  <groupId>com.github.fppt</groupId>
+  <groupId>com.github.24kpure</groupId>
   <artifactId>jedis-mock</artifactId>
-  <version>0.1.16</version>
+  <version>0.0.1</version>
 </dependency>
 ```
 
