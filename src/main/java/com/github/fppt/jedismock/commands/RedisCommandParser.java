@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.commands;
 
+import com.github.fppt.jedismock.exception.EOFException;
 import com.github.fppt.jedismock.server.SliceParser;
 import com.github.fppt.jedismock.exception.ParseErrorException;
 import com.google.common.annotations.VisibleForTesting;
@@ -17,10 +18,15 @@ public class RedisCommandParser {
     public static RedisCommand parse(String stringInput) throws ParseErrorException {
         Preconditions.checkNotNull(stringInput);
 
-        return parse(new ByteArrayInputStream(stringInput.getBytes()));
+        try {
+            return parse(new ByteArrayInputStream(stringInput.getBytes()));
+        } catch (EOFException e){
+            // This is a stream over an in-memory byte array, so we shouldn't get this error
+            throw new ParseErrorException();
+        }
     }
 
-    public static RedisCommand parse(InputStream messageInput) throws ParseErrorException {
+    public static RedisCommand parse(InputStream messageInput) throws ParseErrorException, EOFException {
         Preconditions.checkNotNull(messageInput);
 
         long count = SliceParser.consumeCount(messageInput);

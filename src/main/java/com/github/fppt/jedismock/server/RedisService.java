@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -15,15 +16,18 @@ public class RedisService implements Runnable {
 
     private final ServerSocket server;
     private final Map<Integer, RedisBase> redisBases;
+    private final Collection<RedisClient> connectedClients;
     private final ServiceOptions options;
 
-    public RedisService(ServerSocket server, Map<Integer, RedisBase> redisBases, ServiceOptions options) {
+    public RedisService(ServerSocket server, Map<Integer, RedisBase> redisBases, Collection<RedisClient> connectedClients, ServiceOptions options) {
         Preconditions.checkNotNull(server);
         Preconditions.checkNotNull(redisBases);
+        Preconditions.checkNotNull(connectedClients);
         Preconditions.checkNotNull(options);
 
         this.server = server;
         this.redisBases = redisBases;
+        this.connectedClients = connectedClients;
         this.options = options;
     }
 
@@ -31,7 +35,7 @@ public class RedisService implements Runnable {
         while (!server.isClosed()) {
             try {
                 Socket socket = server.accept();
-                Thread t = new Thread(new RedisClient(redisBases, socket, options));
+                Thread t = new Thread(new RedisClient(redisBases, connectedClients, socket, options));
                 t.start();
             } catch (IOException e) {
                 // Do noting

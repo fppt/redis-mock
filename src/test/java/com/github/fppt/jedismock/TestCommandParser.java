@@ -44,7 +44,7 @@ public class TestCommandParser {
     }
 
     @Test
-    public void testConsumeCount1() throws ParseErrorException {
+    public void testConsumeCount1() throws ParseErrorException, EOFException {
         InputStream stream = new ByteArrayInputStream("*12\r\n".getBytes());
         assertEquals(SliceParser.consumeCount(stream), 12L);
     }
@@ -55,14 +55,14 @@ public class TestCommandParser {
         try {
             SliceParser.consumeCount(stream);
             fail();
-        } catch (ParseErrorException e) {
+        } catch (EOFException e) {
             // OK
         }
     }
 
 
     @Test
-    public void testConsumeParameter() throws ParseErrorException {
+    public void testConsumeParameter() throws ParseErrorException, EOFException {
         InputStream stream = new ByteArrayInputStream("$5\r\nabcde\r\n".getBytes());
         assertEquals(SliceParser.consumeParameter(stream).toString(), "abcde");
     }
@@ -158,7 +158,7 @@ public class TestCommandParser {
     }
 
     @Test
-    public void testConsumeCountError1() {
+    public void testConsumeCountError1() throws EOFException {
         InputStream stream = new ByteArrayInputStream("$12\r\n".getBytes());
         try {
             SliceParser.consumeCount(stream);
@@ -169,7 +169,7 @@ public class TestCommandParser {
     }
 
     @Test
-    public void testConsumeCountError2() {
+    public void testConsumeCountError2() throws EOFException {
         InputStream stream = new ByteArrayInputStream("*12\ra".getBytes());
         try {
             SliceParser.consumeCount(stream);
@@ -185,7 +185,7 @@ public class TestCommandParser {
         try {
             SliceParser.consumeParameter(stream);
             fail();
-        } catch (ParseErrorException e) {
+        } catch (ParseErrorException | EOFException e) {
             // OK
         }
     }
@@ -196,7 +196,7 @@ public class TestCommandParser {
         try {
             SliceParser.consumeParameter(stream);
             fail();
-        } catch (ParseErrorException e) {
+        } catch (ParseErrorException | EOFException e) {
             // OK
         }
     }
@@ -207,7 +207,7 @@ public class TestCommandParser {
         try {
             SliceParser.consumeParameter(stream);
             fail();
-        } catch (ParseErrorException e) {
+        } catch (ParseErrorException | EOFException e) {
             // OK
         }
     }
@@ -218,7 +218,7 @@ public class TestCommandParser {
         try {
             SliceParser.consumeParameter(stream);
             fail();
-        } catch (ParseErrorException e) {
+        } catch (ParseErrorException | EOFException e) {
             // OK
         }
     }

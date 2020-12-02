@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.server;
 
+import com.github.fppt.jedismock.exception.EOFException;
 import com.github.fppt.jedismock.storage.OperationExecutorState;
 import com.github.fppt.jedismock.storage.RedisBase;
 import com.github.fppt.jedismock.commands.RedisCommand;
@@ -13,11 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -25,14 +25,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RedisClient implements Runnable {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RedisClient.class);
     private final AtomicBoolean running;
+    private final Collection<RedisClient> connectedClients;
     private final RedisOperationExecutor executor;
     private final Socket socket;
     private final ServiceOptions options;
     private final InputStream in;
     private final OutputStream out;
 
-    RedisClient(Map<Integer, RedisBase> redisBases, Socket socket, ServiceOptions options) throws IOException {
+    RedisClient(Map<Integer, RedisBase> redisBases, Collection<RedisClient> connectedClients, Socket socket, ServiceOptions options) throws IOException {
         Preconditions.checkNotNull(redisBases);
+        Preconditions.checkNotNull(connectedClients);
         Preconditions.checkNotNull(socket);
         Preconditions.checkNotNull(options);
 
@@ -43,6 +45,9 @@ public class RedisClient implements Runnable {
         this.in = socket.getInputStream();
         this.out = socket.getOutputStream();
         this.running = new AtomicBoolean(true);
+
+        this.connectedClients = connectedClients;
+        this.connectedClients.add(this);
     }
 
     public void run() {
@@ -62,6 +67,7 @@ public class RedisClient implements Runnable {
         }
 
         LOG.debug("Mock redis connection shutting down.");
+        connectedClients.remove(this);
     }
 
     /**
@@ -72,6 +78,9 @@ public class RedisClient implements Runnable {
     private Optional<RedisCommand> nextCommand(){
         try {
             return Optional.of(RedisCommandParser.parse(in));
+        } catch (EOFException e){
+            close(); // The client has gone away, close our connection handler
+            return Optional.empty(); // This simply means there is no next command
         } catch (ParseErrorException e){
             return Optional.empty(); // This simply means there is no next command
         }

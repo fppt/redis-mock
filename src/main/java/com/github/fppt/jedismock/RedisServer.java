@@ -1,14 +1,18 @@
 package com.github.fppt.jedismock;
 
+import com.github.fppt.jedismock.server.RedisClient;
 import com.github.fppt.jedismock.server.RedisService;
 import com.github.fppt.jedismock.server.ServiceOptions;
 import com.github.fppt.jedismock.storage.RedisBase;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Xiaolu on 2015/4/18.
@@ -20,6 +24,7 @@ public class RedisServer {
     private ServerSocket server = null;
     private Thread service = null;
     private final Map<Integer, RedisBase> redisBases = new HashMap<>();
+    private final Collection<RedisClient> connectedClients = new CopyOnWriteArrayList<>();
 
     public RedisServer() throws IOException {
         this(0);
@@ -47,7 +52,7 @@ public class RedisServer {
         Preconditions.checkState(service == null);
 
         server = new ServerSocket(bindPort);
-        service = new Thread(new RedisService(server, redisBases, options));
+        service = new Thread(new RedisService(server, redisBases, connectedClients, options));
         service.start();
     }
 
@@ -85,5 +90,10 @@ public class RedisServer {
     public int getBindPort() {
         Preconditions.checkNotNull(server);
         return server.getLocalPort();
+    }
+
+    @VisibleForTesting
+    Collection<RedisClient> getConnectedClients() {
+        return connectedClients;
     }
 }

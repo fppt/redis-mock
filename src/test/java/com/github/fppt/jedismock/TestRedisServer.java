@@ -84,4 +84,29 @@ public class TestRedisServer {
             server.stop();
         }
     }
+
+    @Test
+    public void testClientClosesConnection() throws IOException, InterruptedException {
+        RedisServer server = RedisServer.newRedisServer();
+        server.start();
+
+        Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
+        assertEquals("PONG", jedis.ping());
+        assertEquals(1, server.getConnectedClients().size());
+
+        jedis.close();
+
+        // give the thread a little bit of time to complete (1 second)
+        for (int retry = 0; retry < 10; retry++) {
+            if (server.getConnectedClients().isEmpty()) {
+                break;
+            } else {
+                Thread.sleep(100);
+            }
+        }
+
+        assertEquals(0, server.getConnectedClients().size());
+
+        server.stop();
+    }
 }

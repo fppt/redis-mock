@@ -73,20 +73,21 @@ public class SliceParser {
     }
 
     @VisibleForTesting
-    public static long consumeCount(InputStream messageInput) throws ParseErrorException {
-        try {
-            expectByte(messageInput, (byte) '*');
-            long count = consumeLong(messageInput);
-            expectByte(messageInput, (byte) '\n');
-            return count;
-        } catch (EOFException e) {
-            throw new ParseErrorException();
-        }
+    public static long consumeCount(InputStream messageInput) throws ParseErrorException, EOFException {
+        expectByte(messageInput, (byte) '*');
+        long count = consumeLong(messageInput);
+        expectByte(messageInput, (byte) '\n');
+        return count;
     }
 
     public static long consumeCount(byte[] message) throws ParseErrorException {
-        InputStream stream = new ByteArrayInputStream(message);
-        return consumeCount(stream);
+        try {
+            InputStream stream = new ByteArrayInputStream(message);
+            return consumeCount(stream);
+        } catch (EOFException e){
+            // This is a stream over an in-memory byte array, so we shouldn't get this error
+            throw new ParseErrorException();
+        }
     }
 
     public static int consumeInteger(byte[] message) throws ParseErrorException {
@@ -108,22 +109,23 @@ public class SliceParser {
         return '0' <= c && c <= '9';
     }
 
-    public static Slice consumeParameter(InputStream messageInput) throws ParseErrorException {
-        try {
-            expectByte(messageInput, (byte) '$');
-            long len = consumeLong(messageInput);
-            expectByte(messageInput, (byte) '\n');
-            Slice para = consumeSlice(messageInput, len);
-            expectByte(messageInput, (byte) '\r');
-            expectByte(messageInput, (byte) '\n');
-            return para;
-        } catch (EOFException e) {
-            throw new ParseErrorException();
-        }
+    public static Slice consumeParameter(InputStream messageInput) throws ParseErrorException, EOFException {
+        expectByte(messageInput, (byte) '$');
+        long len = consumeLong(messageInput);
+        expectByte(messageInput, (byte) '\n');
+        Slice para = consumeSlice(messageInput, len);
+        expectByte(messageInput, (byte) '\r');
+        expectByte(messageInput, (byte) '\n');
+        return para;
     }
 
     public static Slice consumeParameter(byte[] message) throws ParseErrorException {
-        InputStream stream = new ByteArrayInputStream(message);
-        return consumeParameter(stream);
+        try {
+            InputStream stream = new ByteArrayInputStream(message);
+            return consumeParameter(stream);
+        } catch (EOFException e){
+            // This is a stream over an in-memory byte array, so we shouldn't get this error
+            throw new ParseErrorException();
+        }
     }
 }
