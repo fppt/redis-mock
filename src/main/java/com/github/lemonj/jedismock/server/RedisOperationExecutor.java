@@ -22,7 +22,6 @@ public class RedisOperationExecutor {
         this.state = state;
     }
 
-
     public synchronized Slice execCommand(RedisCommand command) {
         Preconditions.checkArgument(command.parameters().size() > 0);
         List<Slice> params = command.parameters();
@@ -33,18 +32,20 @@ public class RedisOperationExecutor {
             //Checking if we are affecting the server or client state.
             //This is done outside the context of a transaction which is why it's a separate check
             Optional<RedisOperation> result = OperationFactory.buildMetaOperation(name, state, commandParams);
-            if(result.isPresent()) return result.get().execute();
+            if (result.isPresent()) {
+                return result.get().execute();
+            }
 
             //Checking if we mutating the transaction or the redisBases
             RedisOperation redisOperation = OperationFactory.buildTxOperation(state.base(), name, commandParams);
-            if(state.isTransactionModeOn()){
+            if (state.isTransactionModeOn()) {
                 state.tx().add(redisOperation);
             } else {
                 return Response.clientResponse(name, redisOperation.execute());
             }
 
             return Response.clientResponse(name, Response.OK);
-        } catch(UnsupportedOperationException | WrongValueTypeException | IllegalArgumentException e){
+        } catch (UnsupportedOperationException | WrongValueTypeException | IllegalArgumentException e) {
             LOG.error("Malformed request", e);
             return Response.error(e.getMessage());
         }

@@ -1,8 +1,8 @@
 package com.github.lemonj.jedismock.operations;
 
+import com.github.lemonj.jedismock.server.Slice;
 import com.github.lemonj.jedismock.storage.OperationExecutorState;
 import com.github.lemonj.jedismock.storage.RedisBase;
-import com.github.lemonj.jedismock.server.Slice;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,12 +90,15 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("zrangebylex", RO_zrangebylex::new);
         TRANSACTIONAL_OPERATIONS.put("zrem", RO_zrem::new);
         TRANSACTIONAL_OPERATIONS.put("rename", RO_rename::new);
+        TRANSACTIONAL_OPERATIONS.put("eval", RO_eval::new);
     }
 
 
     public static RedisOperation buildTxOperation(RedisBase base, String name, List<Slice> params) {
         BiFunction<RedisBase, List<Slice>, RedisOperation> builder = OperationFactory.TRANSACTIONAL_OPERATIONS.get(name);
-        if (builder == null) throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
+        if (builder == null) {
+            throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
+        }
         return builder.apply(base, params);
     }
 

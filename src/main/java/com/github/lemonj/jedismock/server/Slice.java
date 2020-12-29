@@ -15,27 +15,28 @@ public abstract class Slice implements Comparable<Slice>, Serializable {
     private static Slice RESERVED_SLICE = null;
 
     private static final long serialVersionUID = 247772234876073528L;
+
     public abstract byte[] data();
 
-    public static Slice create(byte[] data){
-        if(Arrays.equals(data, RESERVED_SLICE_BYTES)){
-           throw new RuntimeException("Cannot create key/value in mock due to [" + RESERVED_SLICE_NAME + "] being reserved");
+    public static Slice create(byte[] data) {
+        if (Arrays.equals(data, RESERVED_SLICE_BYTES)) {
+            throw new RuntimeException("Cannot create key/value in mock due to [" + RESERVED_SLICE_NAME + "] being reserved");
         }
         return new AutoValue_Slice(data);
     }
 
-    public static Slice create(String data){
+    public static Slice create(String data) {
         return create(data.getBytes().clone());
     }
 
-    public static synchronized Slice reserved(){
-        if (RESERVED_SLICE == null){
+    public static synchronized Slice reserved() {
+        if (RESERVED_SLICE == null) {
             RESERVED_SLICE = new AutoValue_Slice(RESERVED_SLICE_BYTES);
         }
         return RESERVED_SLICE;
     }
 
-    public int length(){
+    public int length() {
         return data().length;
     }
 
@@ -54,6 +55,7 @@ public abstract class Slice implements Comparable<Slice>, Serializable {
         return Arrays.hashCode(data());
     }
 
+    @Override
     public int compareTo(Slice b) {
         int len1 = data().length;
         int len2 = b.data().length;
