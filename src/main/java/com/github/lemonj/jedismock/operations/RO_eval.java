@@ -6,6 +6,10 @@ import com.github.lemonj.jedismock.operations.script.ThreadLocalUtil;
 import com.github.lemonj.jedismock.server.Response;
 import com.github.lemonj.jedismock.server.Slice;
 import com.github.lemonj.jedismock.storage.RedisBase;
+import com.google.common.collect.Lists;
+import org.luaj.vm2.LuaDouble;
+import org.luaj.vm2.LuaInteger;
+import org.luaj.vm2.LuaNumber;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
@@ -34,8 +38,7 @@ class RO_eval extends AbstractRedisOperation {
         engine.put("KEYS", scriptCommand.getKeys());
         engine.put("ARGV", scriptCommand.getArgv());
         try {
-            String luaResultString = engine.eval(scriptCommand.getCommand()).toString();
-            return Slice.create(luaResultString);
+            return convert(engine.eval(scriptCommand.getCommand()));
         } catch (ScriptException e) {
             //not support
             return Response.error(e.getMessage());
@@ -93,5 +96,22 @@ class RO_eval extends AbstractRedisOperation {
         LuaTable binding = LuaTable.tableOf();
         binding.set("call", redis);
         return binding;
+    }
+
+    private Slice convert(Object source) {
+        if (source instanceof LuaTable) {
+            List<Slice> result = Lists.newArrayList();
+            LuaTable value = (LuaTable) source;
+            for (LuaValue key : value.keys()) {
+                result.add(convert(value.get(key)));
+            }
+            return Response.array(result);
+        } else if (source instanceof LuaInteger) {
+            return Response.integer(((LuaInteger) source).toint());
+        } else if (source instanceof LuaDouble) {
+            return Response.doubleValue(((LuaDouble) source).toint());
+        }
+
+        return Slice.create(String.valueOf(source));
     }
 }

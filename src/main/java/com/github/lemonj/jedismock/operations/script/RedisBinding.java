@@ -4,6 +4,7 @@ import com.github.lemonj.jedismock.commands.RedisCommand;
 import com.github.lemonj.jedismock.server.RedisOperationExecutor;
 import com.github.lemonj.jedismock.server.Slice;
 import org.luaj.vm2.LuaString;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
@@ -30,11 +31,10 @@ public class RedisBinding extends VarArgFunction {
         redisCommand.parameters().addAll(readArguments(args).stream()
                 .map(Slice::create)
                 .collect(Collectors.toList()));
-        String result = String.valueOf(executor.execCommand(redisCommand));
+        Slice result = executor.execCommand(redisCommand);
 
-        return toLuaString(result);
+        return toLuaValue(result);
     }
-
 
     private List<byte[]> readArguments(Varargs args) {
         List<byte[]> params = new ArrayList();
@@ -53,6 +53,49 @@ public class RedisBinding extends VarArgFunction {
 
     private byte[] toSafeString(LuaString value) {
         return new SafeString(value.m_bytes).getBytes();
+    }
+
+
+    /**
+     * single paramCount
+     *
+     * @param value
+     * @return
+     */
+    private LuaValue toLuaValue(Slice value) {
+        if (value == null) {
+            return LuaValue.NIL;
+        }
+
+        if (value.toString().startsWith("*")) {
+            LuaTable table = LuaTable.tableOf();
+            int iter = 0;
+            int count = 0;
+            String[] split = value.toString().split("\r\n");
+            for (int i = 0; i < split.length; i++) {
+                if (i == 0) {
+                    continue;
+                }
+                if (count > 0) {
+                    table.set(iter, toLuaValue(Slice.create(split[i])));
+                    count--;
+                }
+                if (split[i].startsWith("$")) {
+                    iter++;
+
+                    String numString = split[i].substring(1);
+                    if (numString.startsWith("-")) {
+                        table.set(iter, LuaValue.NIL);
+                        continue;
+                    }
+
+                    count = Integer.parseInt(numString);
+                }
+            }
+            return table;
+        }
+
+        return toLuaString(value.toString());
     }
 
     private LuaValue toLuaString(String value) {

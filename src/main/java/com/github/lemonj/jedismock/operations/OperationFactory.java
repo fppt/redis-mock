@@ -91,6 +91,8 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("zrem", RO_zrem::new);
         TRANSACTIONAL_OPERATIONS.put("rename", RO_rename::new);
         TRANSACTIONAL_OPERATIONS.put("eval", RO_eval::new);
+        TRANSACTIONAL_OPERATIONS.put("script", RO_script::new);
+        TRANSACTIONAL_OPERATIONS.put("evalsha", RO_evalsha::new);
     }
 
 
