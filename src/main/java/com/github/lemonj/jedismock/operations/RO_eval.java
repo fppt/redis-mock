@@ -38,7 +38,7 @@ class RO_eval extends AbstractRedisOperation {
         engine.put("KEYS", scriptCommand.getKeys());
         engine.put("ARGV", scriptCommand.getArgv());
         try {
-            return convert(engine.eval(scriptCommand.getCommand()));
+            return Response.bulkString(convert(engine.eval(scriptCommand.getCommand())));
         } catch (ScriptException e) {
             //not support
             return Response.error(e.getMessage());
