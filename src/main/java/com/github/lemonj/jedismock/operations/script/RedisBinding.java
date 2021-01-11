@@ -3,6 +3,7 @@ package com.github.lemonj.jedismock.operations.script;
 import com.github.lemonj.jedismock.commands.RedisCommand;
 import com.github.lemonj.jedismock.server.RedisOperationExecutor;
 import com.github.lemonj.jedismock.server.Slice;
+import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.LuaString;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -78,10 +79,13 @@ public class RedisBinding extends VarArgFunction {
                 }
                 if (count > 0) {
                     table.set(iter, toLuaValue(Slice.create(split[i])));
+                    iter++;
                     count--;
                 }
                 if (split[i].startsWith("$")) {
-                    iter++;
+                    if (table.length() <= 0) {
+                        iter++;
+                    }
 
                     String numString = split[i].substring(1);
                     if (numString.startsWith("-")) {
@@ -99,6 +103,15 @@ public class RedisBinding extends VarArgFunction {
     }
 
     private LuaValue toLuaString(String value) {
-        return (value == null ? LuaValue.NIL : LuaString.valueOf(value.getBytes()));
+        if (value == null) {
+            return LuaValue.NIL;
+        }
+
+        try {
+            return LuaInteger.valueOf(Integer.parseInt(value));
+        } catch (NumberFormatException n) {
+        }
+
+        return LuaString.valueOf(value.getBytes());
     }
 }

@@ -9,7 +9,6 @@ import com.github.lemonj.jedismock.storage.RedisBase;
 import com.google.common.collect.Lists;
 import org.luaj.vm2.LuaDouble;
 import org.luaj.vm2.LuaInteger;
-import org.luaj.vm2.LuaNumber;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
@@ -38,7 +37,11 @@ class RO_eval extends AbstractRedisOperation {
         engine.put("KEYS", scriptCommand.getKeys());
         engine.put("ARGV", scriptCommand.getArgv());
         try {
-            return Response.bulkString(convert(engine.eval(scriptCommand.getCommand())));
+            Slice slice = convert(engine.eval(scriptCommand.getCommand()));
+            if (slice.toString().contains("\r\n")) {
+                return slice;
+            }
+            return Response.bulkString(slice);
         } catch (ScriptException e) {
             //not support
             return Response.error(e.getMessage());
@@ -108,6 +111,8 @@ class RO_eval extends AbstractRedisOperation {
             return Response.array(result);
         } else if (source instanceof LuaInteger) {
             return Response.integer(((LuaInteger) source).toint());
+        } else if (source instanceof Integer) {
+            return Response.integer((Integer) source);
         } else if (source instanceof LuaDouble) {
             return Response.doubleValue(((LuaDouble) source).toint());
         }
