@@ -93,6 +93,7 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("eval", RO_eval::new);
         TRANSACTIONAL_OPERATIONS.put("script", RO_script::new);
         TRANSACTIONAL_OPERATIONS.put("evalsha", RO_evalsha::new);
+        TRANSACTIONAL_OPERATIONS.put("unlink", RO_unlink::new);
     }
 
 
