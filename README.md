@@ -19,30 +19,6 @@ Add it as a dependency in Maven as:
 </dependency>
 ```
 
-Create a redis server and bind it to jedis:
-
-```
-private static RedisServer server = null;
-
-@Before
-public void before() throws IOException {
-  server = RedisServer.newRedisServer();  // bind to a random port
-  server.start();
-}
-
-@Test
-public void test() {
-  ...
-  Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
-  ...
-}
-
-@After
-public void after() {
-  server.stop();
-  server = null;
-}
-```
 
 From here test as needed
 
