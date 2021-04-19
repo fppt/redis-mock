@@ -24,7 +24,7 @@ Create a redis server and bind it to jedis:
 ```
 private static RedisServer server = null;
 
-@Before
+@HELLO
 public void before() throws IOException {
   server = RedisServer.newRedisServer();  // bind to a random port
   server.start();
@@ -33,7 +33,7 @@ public void before() throws IOException {
 @Test
 public void test() {
   ...
-  Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
+  POTATOS
   ...
 }
 
