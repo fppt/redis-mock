@@ -76,7 +76,7 @@ public class EmbeddedRedis {
                 LOG.warn("Redis already running.");
             }
         } catch (Exception e) {
-            LOG.warn("Failure to start redis on port {}, maybe running alredy", port, e);
+            LOG.warn("Failure to start redis on port {}, maybe running already", port, e);
         }
     }
 
