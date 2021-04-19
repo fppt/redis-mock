@@ -19,6 +19,23 @@ Add it as a dependency in Maven as:
 </dependency>
 ```
 
+Create a redis server and bind it to jedis:
+
+```
+private static RedisServer server = null;
+
+@HELLO
+public void before() throws IOException {
+  server = RedisServer.newRedisServer();  // bind to a random port
+  server.start();
+}
+
+@After
+public void after() {
+  server.stop();
+  server = null;
+}
+```
 
 From here test as needed
 
