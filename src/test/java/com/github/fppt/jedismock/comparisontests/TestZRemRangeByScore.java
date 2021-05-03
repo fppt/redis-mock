@@ -1,47 +1,45 @@
-package com.github.fppt.jedismock.operations;
+package com.github.fppt.jedismock.comparisontests;
 
-import com.github.fppt.jedismock.RedisServer;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(ComparisonBase.class)
 public class TestZRemRangeByScore {
 
     private static final String ZSET_KEY = "myzset";
 
-    private RedisServer server;
-    private Jedis jedis;
-
     @BeforeEach
-    public void start() throws IOException {
-        server = RedisServer.newRedisServer();
-        server.start();
-        jedis = new Jedis(server.getHost(), server.getBindPort());
+    public void clearKey(Jedis jedis){
+        jedis.del(ZSET_KEY);
     }
 
-    @AfterEach
-    public void stop() {
-        server.stop();
-    }
-
-    @Test
-    public void whenUsingZremrangeByScore_EnsureItReturnsZeroForNonDefinedKey() {
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItReturnsZeroForNonDefinedKey(Jedis jedis) {
         assertEquals(0, jedis.zremrangeByScore(ZSET_KEY, "-inf", "+inf"));
     }
 
-    @Test
-    public void whenUsingZremrangeByScore_EnsureItReturnsSetSizeWhenLowestAndHighestScoresSpecified() {
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItClearsEverythingWithPlusMinusInfinity(Jedis jedis) {
+        jedis.zadd(ZSET_KEY, 1, "one");
+        jedis.zadd(ZSET_KEY, 1, "two");
+        jedis.zadd(ZSET_KEY, 1, "three");
+
+        assertEquals(3, jedis.zremrangeByScore(ZSET_KEY, "-inf", "+inf"));
+        assertEquals(0, jedis.zrange(ZSET_KEY, 0, -1).size());
+    }
+
+
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItReturnsSetSizeWhenLowestAndHighestScoresSpecified(Jedis jedis) {
         // given
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 2, "two");
@@ -56,8 +54,8 @@ public class TestZRemRangeByScore {
         assertEquals(0, jedis.zrange(ZSET_KEY, 0, -1).size());
     }
 
-    @Test
-    public void whenUsingZremrangeByScore_EnsureItRemovesValueWhenIntervalSpecified() {
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItRemovesValueWhenIntervalSpecified(Jedis jedis) {
         // given
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 2, "two");
@@ -74,8 +72,8 @@ public class TestZRemRangeByScore {
         assertArrayEquals(zrangeResult.toArray(), new String[]{"three"});
     }
 
-    @Test
-    public void whenUsingZremrangeByScore_EnsureItDoesNotRemoveValueWhenExclusiveIntervalSpecified() {
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItDoesNotRemoveValueWhenExclusiveIntervalSpecified(Jedis jedis) {
         // given
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 2, "two");
@@ -89,11 +87,11 @@ public class TestZRemRangeByScore {
         assertEquals(1, zremrangeByScoreResult);
         final Set<String> zrangeResult = jedis.zrange(ZSET_KEY, 0, -1);
         assertEquals(2, zrangeResult.size());
-        assertArrayEquals(zrangeResult.toArray(), new String[]{"three", "two"});
+        assertEquals(new HashSet(Arrays.asList("three", "two")), zrangeResult);
     }
 
-    @Test
-    public void whenUsingZremrangeByScore_EnsureItRemovesValuesAccordingToSpecifiedInterval() {
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItRemovesValuesAccordingToSpecifiedInterval(Jedis jedis) {
         // given
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 2, "two");
@@ -114,11 +112,12 @@ public class TestZRemRangeByScore {
         assertEquals(4, zremrangeByScoreResult);
         final Set<String> zrangeResult = jedis.zrange(ZSET_KEY, 0, -1);
         assertEquals(6, zrangeResult.size());
-        assertTrue(zrangeResult.containsAll(Arrays.asList("nine", "three", "one", "two", "four", "ten")));
+        assertEquals(new HashSet(Arrays.asList("one", "two", "three", "four", "nine", "ten")), zrangeResult);
     }
 
-    @Test
-    public void whenUsingZremrangeByScore_EnsureItThrowsExceptionsWhenStartAndEndHaveWrongFormat() {
+
+    @TestTemplate
+    public void whenUsingZremrangeByScore_EnsureItThrowsExceptionsWhenStartAndEndHaveWrongFormat(Jedis jedis) {
         // given
         jedis.zadd(ZSET_KEY, 1, "one");
         jedis.zadd(ZSET_KEY, 2, "two");
@@ -126,10 +125,10 @@ public class TestZRemRangeByScore {
 
         // then
         assertThrows(JedisDataException.class,
-                ()->jedis.zremrangeByScore(ZSET_KEY, "(dd", "(sd"));
+                () -> jedis.zremrangeByScore(ZSET_KEY, "(dd", "(sd"));
         assertThrows(JedisDataException.class,
-                ()->jedis.zremrangeByScore(ZSET_KEY, "1.e", "2.d"));
+                () -> jedis.zremrangeByScore(ZSET_KEY, "1.e", "2.d"));
         assertThrows(RuntimeException.class,
-                ()->jedis.zremrangeByScore(ZSET_KEY, "-INFINITY", "+INFINITY"));
+                () -> jedis.zremrangeByScore(ZSET_KEY, "FOO", "BAR"));
     }
 }

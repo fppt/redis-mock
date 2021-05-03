@@ -1,5 +1,6 @@
 package com.github.fppt.jedismock.operations;
 
+import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -51,8 +52,12 @@ public class RO_zremrangebyscore extends AbstractRedisOperation {
                 .collect(Collectors.toList());
 
         final Map<Slice, Double> result = map.entrySet().stream()
-                .filter(entry -> compareToStart.and(compareToEnd).negate().test(entry.getValue()) )
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .filter(entry -> compareToStart.and(compareToEnd).negate().test(entry.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (u, v) -> {
+                            //duplicate key
+                            throw new IllegalStateException();
+                        }, LinkedHashMap::new));
 
         try {
             base().putValue(key, serializeObject(result));
@@ -64,27 +69,27 @@ public class RO_zremrangebyscore extends AbstractRedisOperation {
     }
 
     private double getStartScore(String start) {
-        if (LOWEST_POSSIBLE_SCORE.equals(start)) {
+        if (LOWEST_POSSIBLE_SCORE.equalsIgnoreCase(start)) {
             return Double.MIN_VALUE;
-        } else if(start.startsWith(EXCLUSIVE_PREFIX)) {
+        } else if (start.startsWith(EXCLUSIVE_PREFIX)) {
             return convertToDouble(start.substring(1));
         } else if (Character.isDigit(start.charAt(0))) {
             return convertToDouble(start);
         } else {
-            throw new RuntimeException("Valid start must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
+            throw new WrongValueTypeException("Valid start must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
                     + LOWEST_POSSIBLE_SCORE + "'");
         }
     }
 
     private double getEndScore(String end) {
-        if (HIGHEST_POSSIBLE_SCORE.equals(end)) {
+        if (HIGHEST_POSSIBLE_SCORE.equalsIgnoreCase(end)) {
             return Double.MAX_VALUE;
-        } else if(end.startsWith(EXCLUSIVE_PREFIX)) {
+        } else if (end.startsWith(EXCLUSIVE_PREFIX)) {
             return convertToDouble(end.substring(1));
         } else if (Character.isDigit(end.charAt(0))) {
             return convertToDouble(end);
         } else {
-            throw new RuntimeException("Valid end must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
+            throw new WrongValueTypeException("Valid end must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
                     + HIGHEST_POSSIBLE_SCORE + "'");
         }
     }
