@@ -73,16 +73,6 @@ public class TestRedisServer {
     }
 
     @Test
-    public void testSetClientName() throws IOException {
-      RedisServer server = RedisServer.newRedisServer();
-      server.start();
-
-      Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
-      String clientName = "Test Client Name";
-      assertEquals(clientName, jedis.clientSetname("Test Client Name"));
-    }
-
-    @Test
     public void whenRepeatedlyStoppingAndStartingServer_EnsureItResponds() throws IOException {
         for (int i = 0; i < 20; i ++){
             RedisServer server = RedisServer.newRedisServer();
