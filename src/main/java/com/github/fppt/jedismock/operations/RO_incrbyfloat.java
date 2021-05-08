@@ -11,8 +11,4 @@ class RO_incrbyfloat extends RO_incrOrDecrByFloat {
     RO_incrbyfloat(RedisBase base, List<Slice> params) {
         super(base, params);
     }
-
-    double incrementOrDecrementValue(List<Slice> params){
-        return convertToDouble(String.valueOf(params.get(1)));
-    }
 }

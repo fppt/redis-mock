@@ -921,6 +921,15 @@ public class SimpleOperationsTest {
         assertEquals("2.5", jedis.get("key"));
     }
 
+    @TestTemplate
+    public void whenIncrementingWithHIncrByFloat_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.hset("key", "subkey", "0");
+        jedis.hincrByFloat("key", "subkey", 1.);
+        assertEquals("1", jedis.hget("key", "subkey"));
+        jedis.hincrByFloat("key", "subkey", 1.5);
+        assertEquals("2.5", jedis.hget("key", "subkey"));
+    }
 
     @TestTemplate
     public void whenIncrementingWithIncrBy_ensureValuesAreCorrect(Jedis jedis) {
@@ -933,6 +942,16 @@ public class SimpleOperationsTest {
     }
 
     @TestTemplate
+    public void whenIncrementingWithHIncrBy_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.hset("key", "subkey", "0");
+        jedis.hincrBy("key", "subkey", 1);
+        assertEquals("1", jedis.hget("key", "subkey"));
+        jedis.hincrBy("key", "subkey", 2);
+        assertEquals("3", jedis.hget("key", "subkey"));
+    }
+
+    @TestTemplate
     public void whenIncrementingText_ensureException(Jedis jedis) {
         jedis.flushDB();
         jedis.set("key", "foo");
@@ -940,6 +959,13 @@ public class SimpleOperationsTest {
         assertThrows(JedisDataException.class, ()->jedis.incrByFloat("key", 1.5));
     }
 
+    @TestTemplate
+    public void whenHIncrementingText_ensureException(Jedis jedis) {
+        jedis.flushDB();
+        jedis.hset("key", "subkey", "foo");
+        assertThrows(JedisDataException.class, ()->jedis.hincrBy("key", "subkey", 1));
+        assertThrows(JedisDataException.class, ()->jedis.hincrByFloat("key", "subkey", 1.5));
+    }
 
     @TestTemplate
     public void decrDoesNotClearTtl(Jedis jedis) {
