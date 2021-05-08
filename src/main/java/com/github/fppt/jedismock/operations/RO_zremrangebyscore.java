@@ -1,6 +1,5 @@
 package com.github.fppt.jedismock.operations;
 
-import com.github.fppt.jedismock.exception.WrongValueTypeException;
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
 import com.github.fppt.jedismock.storage.RedisBase;
@@ -11,15 +10,10 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.fppt.jedismock.Utils.convertToDouble;
 import static com.github.fppt.jedismock.Utils.serializeObject;
 
 
-public class RO_zremrangebyscore extends AbstractRedisOperation {
-
-    private static final String LOWEST_POSSIBLE_SCORE = "-inf";
-    private static final String HIGHEST_POSSIBLE_SCORE = "+inf";
-    private static final String EXCLUSIVE_PREFIX = "(";
+public class RO_zremrangebyscore extends AbstractByScoreOperation {
 
     RO_zremrangebyscore(RedisBase base, List<Slice> params) {
         super(base, params);
@@ -33,26 +27,15 @@ public class RO_zremrangebyscore extends AbstractRedisOperation {
         if (map == null || map.isEmpty()) return Response.integer(0);
 
         final String start = params().get(1).toString();
-        final double startScore = getStartScore(start);
-
-
-        final Predicate<Double> compareToStart = p -> start.startsWith(EXCLUSIVE_PREFIX)
-                ? p.compareTo(startScore) > 0
-                : p.compareTo(startScore) >= 0;
-
         final String end = params().get(2).toString();
-        final double endScore = getEndScore(end);
-
-        final Predicate<Double> compareToEnd = p -> (end.startsWith(EXCLUSIVE_PREFIX)
-                ? p.compareTo(endScore) < 0
-                : p.compareTo(endScore) <= 0);
+        Predicate<Double> filterPredicate = getFilterPredicate(start, end);
 
         List<Double> values = map.values().stream()
-                .filter(compareToStart.and(compareToEnd))
+                .filter(filterPredicate)
                 .collect(Collectors.toList());
 
         final Map<Slice, Double> result = map.entrySet().stream()
-                .filter(entry -> compareToStart.and(compareToEnd).negate().test(entry.getValue()))
+                .filter(entry -> filterPredicate.negate().test(entry.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (u, v) -> {
                             //duplicate key
@@ -68,29 +51,4 @@ public class RO_zremrangebyscore extends AbstractRedisOperation {
         return Response.integer(values.size());
     }
 
-    private double getStartScore(String start) {
-        if (LOWEST_POSSIBLE_SCORE.equalsIgnoreCase(start)) {
-            return Double.MIN_VALUE;
-        } else if (start.startsWith(EXCLUSIVE_PREFIX)) {
-            return convertToDouble(start.substring(1));
-        } else if (Character.isDigit(start.charAt(0))) {
-            return convertToDouble(start);
-        } else {
-            throw new WrongValueTypeException("Valid start must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
-                    + LOWEST_POSSIBLE_SCORE + "'");
-        }
-    }
-
-    private double getEndScore(String end) {
-        if (HIGHEST_POSSIBLE_SCORE.equalsIgnoreCase(end)) {
-            return Double.MAX_VALUE;
-        } else if (end.startsWith(EXCLUSIVE_PREFIX)) {
-            return convertToDouble(end.substring(1));
-        } else if (Character.isDigit(end.charAt(0))) {
-            return convertToDouble(end);
-        } else {
-            throw new WrongValueTypeException("Valid end must be a number or start with '" + EXCLUSIVE_PREFIX + "' or be equal to '"
-                    + HIGHEST_POSSIBLE_SCORE + "'");
-        }
-    }
 }
