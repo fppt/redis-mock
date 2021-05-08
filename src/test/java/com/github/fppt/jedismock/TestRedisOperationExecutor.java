@@ -154,9 +154,9 @@ public class TestRedisOperationExecutor {
 
     @Test
     public void testIncrByFloat() throws ParseErrorException {
-        assertCommandEquals(5.0, array("incrbyfloat", "a", "5"));
-        assertCommandEquals(11.01, array("incrbyfloat", "a", "6.01"));
-        assertCommandEquals(9.51, array("incrbyfloat", "a", "-1.5"));
+        assertCommandEquals("5", array("incrbyfloat", "a", "5"));
+        assertCommandEquals("11.01", array("incrbyfloat", "a", "6.01"));
+        assertCommandEquals("9.51", array("incrbyfloat", "a", "-1.5"));
         assertCommandOK(array("set", "a", "b"));
         assertCommandError(array("incrbyfloat", "a", "1"));
     }
