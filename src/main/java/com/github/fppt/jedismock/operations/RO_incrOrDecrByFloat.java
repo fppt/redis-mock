@@ -7,8 +7,6 @@ import com.github.fppt.jedismock.storage.RedisBase;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.github.fppt.jedismock.Utils.convertToDouble;
-
 abstract class RO_incrOrDecrByFloat extends AbstractRedisOperation {
     RO_incrOrDecrByFloat(RedisBase base, List<Slice> params) {
         super(base, params);
