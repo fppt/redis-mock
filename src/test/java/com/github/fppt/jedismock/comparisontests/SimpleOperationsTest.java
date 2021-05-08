@@ -253,6 +253,7 @@ public class SimpleOperationsTest {
         assertEquals(31.41, jedis.hincrByFloat(key, "E", 0.01), 0.00001);
     }
 
+
     @TestTemplate
     public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis) {
         String key = "my-counted-set-key";
@@ -909,6 +910,36 @@ public class SimpleOperationsTest {
 
         assertTrue(ttl > 0);
     }
+
+    @TestTemplate
+    public void whenIncrementingWithIncrByFloat_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.set("key", "0");
+        jedis.incrByFloat("key", 1.);
+        assertEquals("1", jedis.get("key"));
+        jedis.incrByFloat("key", 1.5);
+        assertEquals("2.5", jedis.get("key"));
+    }
+
+
+    @TestTemplate
+    public void whenIncrementingWithIncrBy_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.set("key", "0");
+        jedis.incrBy("key", 1);
+        assertEquals("1", jedis.get("key"));
+        jedis.incrBy("key", 2);
+        assertEquals("3", jedis.get("key"));
+    }
+
+    @TestTemplate
+    public void whenIncrementingText_ensureException(Jedis jedis) {
+        jedis.flushDB();
+        jedis.set("key", "foo");
+        assertThrows(JedisDataException.class, ()->jedis.incrBy("key", 1));
+        assertThrows(JedisDataException.class, ()->jedis.incrByFloat("key", 1.5));
+    }
+
 
     @TestTemplate
     public void decrDoesNotClearTtl(Jedis jedis) {
