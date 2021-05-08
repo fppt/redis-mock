@@ -121,6 +121,8 @@ public class OperationFactory {
                 return Optional.of(new RO_exec(state));
             case "client":
                 return Optional.of(new RO_client());
+            case "hello":
+                return Optional.of(new RO_hello());
             default:
                 return Optional.empty();
         }

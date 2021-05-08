@@ -77,6 +77,12 @@
             <version>${jedis.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.1.1.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Used for creating an testcontainer of Redis for testing and comparing behaviour-->
         <dependency>
             <groupId>org.testcontainers</groupId>
