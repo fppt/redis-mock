@@ -42,7 +42,7 @@
         <junit.version>5.5.2</junit.version>
         <jedis.version>3.6.0</jedis.version>
         <testcontainers.version>1.15.3</testcontainers.version>
-        <findbugs.version>3.0.1</findbugs.version>
+        <spotbugs.version>4.2.3</spotbugs.version>
         <slf4j.version>1.7.20</slf4j.version>
         <auto-value.version>1.6.2</auto-value.version>
     </properties>
@@ -95,13 +95,6 @@
             <artifactId>junit-jupiter</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
-        </dependency>
-        <!-- Used for finding common bugs in java projects -->
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>${findbugs.version}</version>
-            <scope>provided</scope>
         </dependency>
         <!-- SLF4J is the logging API all modules should use -->
         <dependency>
@@ -182,9 +175,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
                 <configuration>
                     <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
                     <effort>Max</effort>
@@ -192,6 +185,8 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
