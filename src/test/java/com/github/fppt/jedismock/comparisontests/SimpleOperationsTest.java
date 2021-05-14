@@ -16,15 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(ComparisonBase.class)
 public class SimpleOperationsTest {
 
-    private String HASH = "hash";
-    private String FIELD_1 = "field1";
-    private String VALUE_1 = "value1";
-    private String FIELD_2 = "field2";
-    private String VALUE_2 = "value2";
-    private String FIELD_3 = "field3";
-    private String VALUE_3 = "value3";
-    private String FIELD_4 = "field4";
-    private String FIELD_5 = "field5";
+    private final String HASH = "hash";
+    private final String FIELD_1 = "field1";
+    private final String VALUE_1 = "value1";
+    private final String FIELD_2 = "field2";
+    private final String VALUE_2 = "value2";
+    private final String FIELD_3 = "field3";
+    private final String VALUE_3 = "value3";
+    private final String FIELD_4 = "field4";
+    private final String FIELD_5 = "field5";
 
     @TestTemplate
     public void whenSettingKeyAndRetrievingIt_CorrectResultIsReturned(Jedis jedis) {
@@ -156,17 +156,17 @@ public class SimpleOperationsTest {
 
         //Increase counts concurrently
         ExecutorService pool = Executors.newCachedThreadPool();
-        Set<Future> futues = new HashSet<>();
+        Set<Future<?>> futures = new HashSet<>();
         for (int i : count) {
-            futues.add(pool.submit(() -> {
+            futures.add(pool.submit(() -> {
                 Jedis client = new Jedis(jedis.getClient().getHost(), jedis.getClient().getPort());
                 client.incrBy(key, i);
                 client.close();
             }));
         }
 
-        for (Future futue : futues) {
-            futue.get();
+        for (Future<?> future : futures) {
+            future.get();
         }
 
         //Check final count
@@ -199,6 +199,27 @@ public class SimpleOperationsTest {
         assertTrue(results.contains("one") && results.contains("two") && results.contains("three") && results.contains(
                 "four"));
     }
+
+    @TestTemplate
+    public void whenGettingKeys_EnsureExpiredKeysAreNotReturned(Jedis jedis) throws InterruptedException {
+        jedis.flushDB();
+        jedis.hset("test", "key", "value");
+        jedis.expire("test", 1L);
+        assertEquals(Collections.singleton("test"), jedis.keys("*"));
+        Thread.sleep(2000);
+        assertEquals(Collections.emptySet(), jedis.keys("*"));
+    }
+
+    @TestTemplate
+    public void whenCountingKeys_EnsureExpiredKeysAreNotCounted(Jedis jedis) throws InterruptedException {
+        jedis.flushDB();
+        jedis.hset("test", "key", "value");
+        jedis.expire("test", 1L);
+        assertEquals(1, jedis.dbSize());
+        Thread.sleep(2000);
+        assertEquals(0, jedis.dbSize());
+    }
+
 
     @TestTemplate
     public void whenAddingToASet_EnsureTheSetIsUpdated(Jedis jedis) {
@@ -889,7 +910,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.incr(key);
         long ttl = jedis.ttl(key);
@@ -903,7 +924,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.incrBy(key, 10);
         long ttl = jedis.ttl(key);
@@ -973,7 +994,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.decr(key);
         long ttl = jedis.ttl(key);
@@ -987,7 +1008,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.decrBy(key, 10);
         long ttl = jedis.ttl(key);
@@ -1017,7 +1038,7 @@ public class SimpleOperationsTest {
         String subkey = "mysubkey";
 
         jedis.hsetnx(key, subkey, "a");
-        jedis.expire(key, 1);
+        jedis.expire(key, 1L);
 
         Thread.sleep(2000);
 
