@@ -53,7 +53,6 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("rpoplpush", RO_rpoplpush::new);
         TRANSACTIONAL_OPERATIONS.put("brpoplpush", RO_brpoplpush::new);
         TRANSACTIONAL_OPERATIONS.put("publish", RO_publish::new);
-        TRANSACTIONAL_OPERATIONS.put("flushall", RO_flushall::new);
         TRANSACTIONAL_OPERATIONS.put("flushdb", RO_flushdb::new);
         TRANSACTIONAL_OPERATIONS.put("dbsize", RO_dbsize::new);
         TRANSACTIONAL_OPERATIONS.put("lrem", RO_lrem::new);
@@ -124,6 +123,8 @@ public class OperationFactory {
                 return Optional.of(new RO_client());
             case "hello":
                 return Optional.of(new RO_hello());
+            case "flushall":
+                return Optional.of(new RO_flushall(state));
             default:
                 return Optional.empty();
         }
