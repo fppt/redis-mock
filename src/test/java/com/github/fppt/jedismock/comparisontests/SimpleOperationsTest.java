@@ -3,7 +3,6 @@ package com.github.fppt.jedismock.comparisontests;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import redis.clients.jedis.*;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.*;
@@ -17,15 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(ComparisonBase.class)
 public class SimpleOperationsTest {
 
-    private String HASH = "hash";
-    private String FIELD_1 = "field1";
-    private String VALUE_1 = "value1";
-    private String FIELD_2 = "field2";
-    private String VALUE_2 = "value2";
-    private String FIELD_3 = "field3";
-    private String VALUE_3 = "value3";
-    private String FIELD_4 = "field4";
-    private String FIELD_5 = "field5";
+    private final String HASH = "hash";
+    private final String FIELD_1 = "field1";
+    private final String VALUE_1 = "value1";
+    private final String FIELD_2 = "field2";
+    private final String VALUE_2 = "value2";
+    private final String FIELD_3 = "field3";
+    private final String VALUE_3 = "value3";
+    private final String FIELD_4 = "field4";
+    private final String FIELD_5 = "field5";
 
     @TestTemplate
     public void whenSettingKeyAndRetrievingIt_CorrectResultIsReturned(Jedis jedis) {
@@ -136,15 +135,14 @@ public class SimpleOperationsTest {
     }
 
     @TestTemplate
-    public void whenUsingQuit_EnsureTheConnectionIsClosed(Jedis jedis) {
+    public void whenUsingQuit_EnsureTheResultIsOK(Jedis jedis) {
         //Create a new connection
         Client client = jedis.getClient();
         Jedis newJedis = new Jedis(client.getHost(), client.getPort());
         newJedis.set("A happy lucky key", "A sad value");
-        assertEquals("OK", newJedis.quit());
 
-        assertThrows(JedisConnectionException.class,
-            ()->newJedis.set("A happy lucky key", "A sad value 2"));
+        assertEquals("OK", newJedis.quit());
+        assertEquals("A sad value", jedis.get("A happy lucky key"));
     }
 
     @TestTemplate
@@ -158,17 +156,17 @@ public class SimpleOperationsTest {
 
         //Increase counts concurrently
         ExecutorService pool = Executors.newCachedThreadPool();
-        Set<Future> futues = new HashSet<>();
+        Set<Future<?>> futures = new HashSet<>();
         for (int i : count) {
-            futues.add(pool.submit(() -> {
+            futures.add(pool.submit(() -> {
                 Jedis client = new Jedis(jedis.getClient().getHost(), jedis.getClient().getPort());
                 client.incrBy(key, i);
                 client.close();
             }));
         }
 
-        for (Future futue : futues) {
-            futue.get();
+        for (Future<?> future : futures) {
+            future.get();
         }
 
         //Check final count
@@ -201,6 +199,27 @@ public class SimpleOperationsTest {
         assertTrue(results.contains("one") && results.contains("two") && results.contains("three") && results.contains(
                 "four"));
     }
+
+    @TestTemplate
+    public void whenGettingKeys_EnsureExpiredKeysAreNotReturned(Jedis jedis) throws InterruptedException {
+        jedis.flushDB();
+        jedis.hset("test", "key", "value");
+        jedis.expire("test", 1L);
+        assertEquals(Collections.singleton("test"), jedis.keys("*"));
+        Thread.sleep(2000);
+        assertEquals(Collections.emptySet(), jedis.keys("*"));
+    }
+
+    @TestTemplate
+    public void whenCountingKeys_EnsureExpiredKeysAreNotCounted(Jedis jedis) throws InterruptedException {
+        jedis.flushDB();
+        jedis.hset("test", "key", "value");
+        jedis.expire("test", 1L);
+        assertEquals(1, jedis.dbSize());
+        Thread.sleep(2000);
+        assertEquals(0, jedis.dbSize());
+    }
+
 
     @TestTemplate
     public void whenAddingToASet_EnsureTheSetIsUpdated(Jedis jedis) {
@@ -254,6 +273,7 @@ public class SimpleOperationsTest {
 
         assertEquals(31.41, jedis.hincrByFloat(key, "E", 0.01), 0.00001);
     }
+
 
     @TestTemplate
     public void whenAddingToASet_ensureCountIsUpdated(Jedis jedis) {
@@ -494,15 +514,20 @@ public class SimpleOperationsTest {
     @TestTemplate
     public void whenUsingHsetnx_EnsureValueIsOnlyPutIfOtherValueDoesNotExist(Jedis jedis) {
         assertNull(jedis.hget(HASH, FIELD_3));
-        jedis.hsetnx(HASH, FIELD_3, VALUE_1);
+        assertEquals(1, jedis.hsetnx(HASH, FIELD_3, VALUE_1));
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
-        jedis.hsetnx(HASH, FIELD_3, VALUE_2);
+        assertEquals(0, jedis.hsetnx(HASH, FIELD_3, VALUE_2));
         assertEquals(VALUE_1, jedis.hget(HASH, FIELD_3));
     }
 
     @TestTemplate
     public void whenGettingInfo_EnsureSomeDateIsReturned(Jedis jedis) {
         assertNotNull(jedis.info());
+    }
+
+    @TestTemplate
+    public void whenSettingClientName_EnsureOkResponseIsReturned(Jedis jedis) {
+        assertEquals("OK", jedis.clientSetname("P.Myo"));
     }
 
     @TestTemplate
@@ -553,7 +578,7 @@ public class SimpleOperationsTest {
 
         ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START);
 
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
         assertEquals(2, result.getResult().size());
         assertTrue(result.getResult().contains(key));
         assertTrue(result.getResult().contains(key2));
@@ -573,7 +598,7 @@ public class SimpleOperationsTest {
         ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
                 new ScanParams().match("scankeymatch:1*"));
 
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
         assertEquals(1, result.getResult().size());
         assertTrue(result.getResult().contains(key));
     }
@@ -591,7 +616,7 @@ public class SimpleOperationsTest {
         ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
                 new ScanParams().match("scankeyi:1*").count(10));
 
-        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
     }
 
     @TestTemplate
@@ -627,7 +652,7 @@ public class SimpleOperationsTest {
         jedis.sadd(key, values);
 
         ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START, new ScanParams().count(13));
-        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
     }
 
     @TestTemplate
@@ -646,7 +671,7 @@ public class SimpleOperationsTest {
         ScanResult<String> result = jedis.sscan(key, ScanParams.SCAN_POINTER_START,
                 new ScanParams().match("21_value_0"));
 
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getStringCursor());
+        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
         assertEquals(1, result.getResult().size());
         assertTrue(result.getResult().contains(values[0]));
     }
@@ -671,7 +696,7 @@ public class SimpleOperationsTest {
                 cursor = ScanParams.SCAN_POINTER_START;
             }
             ScanResult<String> result = jedis.sscan(key, cursor);
-            cursor = result.getStringCursor();
+            cursor = result.getCursor();
             results.addAll(result.getResult());
         }
 
@@ -885,7 +910,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.incr(key);
         long ttl = jedis.ttl(key);
@@ -899,7 +924,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.incrBy(key, 10);
         long ttl = jedis.ttl(key);
@@ -908,12 +933,68 @@ public class SimpleOperationsTest {
     }
 
     @TestTemplate
+    public void whenIncrementingWithIncrByFloat_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.set("key", "0");
+        jedis.incrByFloat("key", 1.);
+        assertEquals("1", jedis.get("key"));
+        jedis.incrByFloat("key", 1.5);
+        assertEquals("2.5", jedis.get("key"));
+    }
+
+    @TestTemplate
+    public void whenIncrementingWithHIncrByFloat_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.hset("key", "subkey", "0");
+        jedis.hincrByFloat("key", "subkey", 1.);
+        assertEquals("1", jedis.hget("key", "subkey"));
+        jedis.hincrByFloat("key", "subkey", 1.5);
+        assertEquals("2.5", jedis.hget("key", "subkey"));
+    }
+
+    @TestTemplate
+    public void whenIncrementingWithIncrBy_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.set("key", "0");
+        jedis.incrBy("key", 1);
+        assertEquals("1", jedis.get("key"));
+        jedis.incrBy("key", 2);
+        assertEquals("3", jedis.get("key"));
+    }
+
+    @TestTemplate
+    public void whenIncrementingWithHIncrBy_ensureValuesAreCorrect(Jedis jedis) {
+        jedis.flushDB();
+        jedis.hset("key", "subkey", "0");
+        jedis.hincrBy("key", "subkey", 1);
+        assertEquals("1", jedis.hget("key", "subkey"));
+        jedis.hincrBy("key", "subkey", 2);
+        assertEquals("3", jedis.hget("key", "subkey"));
+    }
+
+    @TestTemplate
+    public void whenIncrementingText_ensureException(Jedis jedis) {
+        jedis.flushDB();
+        jedis.set("key", "foo");
+        assertThrows(JedisDataException.class, ()->jedis.incrBy("key", 1));
+        assertThrows(JedisDataException.class, ()->jedis.incrByFloat("key", 1.5));
+    }
+
+    @TestTemplate
+    public void whenHIncrementingText_ensureException(Jedis jedis) {
+        jedis.flushDB();
+        jedis.hset("key", "subkey", "foo");
+        assertThrows(JedisDataException.class, ()->jedis.hincrBy("key", "subkey", 1));
+        assertThrows(JedisDataException.class, ()->jedis.hincrByFloat("key", "subkey", 1.5));
+    }
+
+    @TestTemplate
     public void decrDoesNotClearTtl(Jedis jedis) {
         jedis.flushDB();
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.decr(key);
         long ttl = jedis.ttl(key);
@@ -927,7 +1008,7 @@ public class SimpleOperationsTest {
 
         String key = "mykey";
         jedis.set(key, "0");
-        jedis.expire(key, 100);
+        jedis.expire(key, 100L);
 
         jedis.decrBy(key, 10);
         long ttl = jedis.ttl(key);
@@ -957,7 +1038,7 @@ public class SimpleOperationsTest {
         String subkey = "mysubkey";
 
         jedis.hsetnx(key, subkey, "a");
-        jedis.expire(key, 1);
+        jedis.expire(key, 1L);
 
         Thread.sleep(2000);
 
@@ -994,6 +1075,47 @@ public class SimpleOperationsTest {
         assertEquals(2, results.size());
         assertEquals("ddd", results.get(0));
         assertEquals("ccc", results.get(1));
+    }
+
+    @TestTemplate
+    void hsetwithMap(Jedis jedis) {
+        jedis.flushDB();
+
+        Map<String, String> hash = new HashMap<>();
+        hash.put("k1", "v1");
+        hash.put("k2", "v2");
+        final Long added = jedis.hset("key", hash);
+
+        assertEquals(2, added);
+
+        // identity
+        final Long added1 = jedis.hset("key", hash);
+        assertEquals(0, added1);
+
+        // update
+        hash.put("k2", "v3");
+        final Long added2 = jedis.hset("key", hash);
+        assertEquals(0, added2);
+
+    }
+    
+    @TestTemplate
+    public void zscore(Jedis jedis) {
+        jedis.flushDB();
+        
+        String key = "a_key";
+        Map<String, Double> members = new HashMap<>();
+        members.put("aaa", 0d);
+        members.put("bbb", 1d);
+        members.put("ddd", 1d);
+        
+        long result = jedis.zadd(key, members);
+        assertEquals(3L, result); 
+       
+        assertEquals(0d, jedis.zscore(key, "aaa"));
+        assertEquals(1d, jedis.zscore(key, "bbb"));
+        assertEquals(1d, jedis.zscore(key, "ddd"));
+        assertNull(jedis.zscore(key, "ccc"));
     }
     
 }

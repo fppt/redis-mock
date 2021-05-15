@@ -12,10 +12,7 @@ import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +40,7 @@ public class AdvanceOperationsTest {
 
         //Start transaction
         jedis.multi();
-        assertEquals("Cannot use Jedis when in Multi. Please use Transation or reset jedis state.",
+        assertEquals("Cannot use Jedis when in Multi. Please use Transaction or reset jedis state.",
                 assertThrows(JedisDataException.class, () ->
                         jedis.get("oobity-oobity-boo")).getMessage());
     }
@@ -63,13 +60,13 @@ public class AdvanceOperationsTest {
         subsciberThread.submit(() -> subscriber.subscribe(mockSubscriber, channel));
 
         //Give some time to subscribe
-        Thread.sleep(50);
+        Thread.sleep(100);
 
         //publish message
         jedis.publish(channel, message);
 
         //Give some time for the message to go through
-        Thread.sleep(50);
+        Thread.sleep(100);
 
         assertEquals(channel, mockSubscriber.latestChannel());
         assertEquals(message, mockSubscriber.latestMessage());
@@ -274,10 +271,13 @@ public class AdvanceOperationsTest {
     }
 
     @TestTemplate
-    public void whenUsingBlpop_EnsureItTimeout(Jedis jedis) throws ExecutionException, InterruptedException {
+    public void whenUsingBlpop_EnsureItTimeout(Jedis jedis) throws ExecutionException, InterruptedException, TimeoutException {
         String list1key = "list1_kdjfnvdsu";
         String list2key = "list2_mbhkdushy";
         String list3key = "list3_qzkmpthju";
+
+        // init redisbase
+        jedis.lrange(list2key, 0, -1);
 
         //Block on performing the BLPOP
         Client client = jedis.getClient();
@@ -285,11 +285,12 @@ public class AdvanceOperationsTest {
         ExecutorService blockingThread = Executors.newSingleThreadExecutor();
         Future future = blockingThread.submit(() -> {
             List<String> result = blockedClient.blpop(1, list1key, list2key, list3key);
-            assertEquals(0, result.size());
+            assertNull(result);
         });
         //Check the list is not modified
+        client.setSoTimeout(2000);
         List<String> results = jedis.lrange(list2key, 0, -1);
         assertEquals(0, results.size());
-        future.get();
+        future.get(4, TimeUnit.SECONDS);
     }
 }

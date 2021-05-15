@@ -2,17 +2,18 @@ package com.github.fppt.jedismock.operations;
 
 import com.github.fppt.jedismock.server.Response;
 import com.github.fppt.jedismock.server.Slice;
-import com.github.fppt.jedismock.storage.RedisBase;
+import com.github.fppt.jedismock.storage.OperationExecutorState;
 
-import java.util.List;
+class RO_flushall implements RedisOperation {
+    private OperationExecutorState state;
 
-class RO_flushall extends AbstractRedisOperation {
-    RO_flushall(RedisBase base, List<Slice> params) {
-        super(base, params);
+    RO_flushall(OperationExecutorState state) {
+        this.state = state;
     }
 
-    Slice response(){
-        base().clear();
+    @Override
+    public Slice execute() {
+        state.clearAll();
         return Response.OK;
     }
 }

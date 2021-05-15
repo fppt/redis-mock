@@ -53,7 +53,6 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("rpoplpush", RO_rpoplpush::new);
         TRANSACTIONAL_OPERATIONS.put("brpoplpush", RO_brpoplpush::new);
         TRANSACTIONAL_OPERATIONS.put("publish", RO_publish::new);
-        TRANSACTIONAL_OPERATIONS.put("flushall", RO_flushall::new);
         TRANSACTIONAL_OPERATIONS.put("flushdb", RO_flushdb::new);
         TRANSACTIONAL_OPERATIONS.put("dbsize", RO_dbsize::new);
         TRANSACTIONAL_OPERATIONS.put("lrem", RO_lrem::new);
@@ -90,7 +89,10 @@ public class OperationFactory {
         TRANSACTIONAL_OPERATIONS.put("zrangebylex", RO_zrangebylex::new);
         TRANSACTIONAL_OPERATIONS.put("zrevrangebylex", RO_zrevrangebylex::new);
         TRANSACTIONAL_OPERATIONS.put("zrem", RO_zrem::new);
+        TRANSACTIONAL_OPERATIONS.put("zrangebyscore", RO_zrangebyscore::new);
+        TRANSACTIONAL_OPERATIONS.put("zremrangebyscore", RO_zremrangebyscore::new);
         TRANSACTIONAL_OPERATIONS.put("rename", RO_rename::new);
+        TRANSACTIONAL_OPERATIONS.put("zscore", RO_zscore::new);
     }
 
 
@@ -118,6 +120,12 @@ public class OperationFactory {
                 return Optional.of(new RO_auth(state));
             case "exec":
                 return Optional.of(new RO_exec(state));
+            case "client":
+                return Optional.of(new RO_client());
+            case "hello":
+                return Optional.of(new RO_hello());
+            case "flushall":
+                return Optional.of(new RO_flushall(state));
             default:
                 return Optional.empty();
         }

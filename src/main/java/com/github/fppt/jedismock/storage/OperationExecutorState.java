@@ -48,4 +48,10 @@ public class OperationExecutorState {
         if(isTransactionModeOn.get()) throw new RuntimeException("Redis mock does not support more than one transaction");
         transactionMode(true);
     }
+
+    public void clearAll() {
+        for (RedisBase redisBase : redisBases.values()) {
+            redisBase.clear();
+        }
+    }
 }

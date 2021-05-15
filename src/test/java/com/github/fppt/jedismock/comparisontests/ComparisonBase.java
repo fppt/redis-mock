@@ -1,8 +1,8 @@
 package com.github.fppt.jedismock.comparisontests;
 
 import com.github.fppt.jedismock.RedisServer;
-import com.github.fppt.jedismock.util.EmbeddedRedis;
 import org.junit.jupiter.api.extension.*;
+import org.testcontainers.containers.GenericContainer;
 import redis.clients.jedis.Jedis;
 
 import java.util.Collections;
@@ -13,20 +13,26 @@ public class ComparisonBase implements TestTemplateInvocationContextProvider,
         BeforeAllCallback, AfterAllCallback {
     private static RedisServer fakeServer;
 
+    private static GenericContainer redis = new GenericContainer<>("redis:5.0-alpine")
+            .withExposedPorts(6379);
+
+
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        //Start up the real redis server
-        EmbeddedRedis.start();
+
+        // Docker container:
+        redis.start();
 
         //Start up the fake redis server
-        fakeServer = RedisServer.newRedisServer(EmbeddedRedis.PORT + 1);
+        fakeServer = RedisServer.newRedisServer(redis.getFirstMappedPort() + 1);
         fakeServer.start();
     }
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-        //Kill the real redis server
-        EmbeddedRedis.stop();
+
+        // Docker container:
+        redis.stop();
 
         //Kill the fake redis server
         fakeServer.stop();
@@ -44,10 +50,10 @@ public class ComparisonBase implements TestTemplateInvocationContextProvider,
                 new JedisTestTemplateInvocationContext("mock",
                         new Jedis(fakeServer.getHost(), fakeServer.getBindPort(), 1000000)),
                 new JedisTestTemplateInvocationContext("real",
-                        new Jedis("localhost", EmbeddedRedis.PORT)));
+                        new Jedis(redis.getContainerIpAddress(), redis.getFirstMappedPort())));
     }
 
-    private class JedisTestTemplateInvocationContext implements TestTemplateInvocationContext{
+    private class JedisTestTemplateInvocationContext implements TestTemplateInvocationContext {
 
         private final String displayName;
         private final Jedis jedis;

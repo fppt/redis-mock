@@ -21,7 +21,17 @@ public class RedisBase {
     public RedisBase() {}
 
     public Set<Slice> keys(){
-        return keyValueStorage.values().rowMap().keySet();
+        Set<Slice> slices = keyValueStorage.values().rowMap().keySet();
+        Set<Slice> result = new HashSet<>();
+        for (Slice key: slices){
+            Long deadline = keyValueStorage.ttls().get(key);
+            if (deadline != null && deadline != -1 && deadline <= System.currentTimeMillis()) {
+                keyValueStorage.delete(key);
+            } else {
+                result.add(key);
+            }
+        }
+        return result;
     }
 
     public Slice getValue(Slice key) {

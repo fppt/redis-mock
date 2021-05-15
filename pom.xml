@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,7 +11,7 @@
 
     <groupId>com.github.fppt</groupId>
     <artifactId>jedis-mock</artifactId>
-    <version>0.1.17-SNAPSHOT</version>
+    <version>0.1.20-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>jedis-mock</name>
     <description>In memory Redis mock for testing</description>
@@ -39,9 +40,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <guava.version>19.0</guava.version>
         <junit.version>5.5.2</junit.version>
-        <redis.version>2.9.0</redis.version>
-        <redis-embedded.version>0.6</redis-embedded.version>
-        <findbugs.version>3.0.1</findbugs.version>
+        <jedis.version>3.6.0</jedis.version>
+        <testcontainers.version>1.15.3</testcontainers.version>
+        <spotbugs.version>4.2.3</spotbugs.version>
         <slf4j.version>1.7.20</slf4j.version>
         <auto-value.version>1.6.2</auto-value.version>
     </properties>
@@ -73,22 +74,27 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>${redis.version}</version>
+            <version>${jedis.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Used for creating an embedded Redis for testing and comparing behaviour-->
         <dependency>
-            <groupId>com.github.kstyrc</groupId>
-            <artifactId>embedded-redis</artifactId>
-            <version>${redis-embedded.version}</version>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.1.1.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <!-- Used for finding common bugs in java projects -->
+        <!-- Used for creating an testcontainer of Redis for testing and comparing behaviour-->
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>${findbugs.version}</version>
-            <scope>provided</scope>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- SLF4J is the logging API all modules should use -->
         <dependency>
@@ -169,16 +175,18 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
                 <configuration>
-                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>

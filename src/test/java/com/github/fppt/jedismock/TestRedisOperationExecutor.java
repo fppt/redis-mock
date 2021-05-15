@@ -154,9 +154,9 @@ public class TestRedisOperationExecutor {
 
     @Test
     public void testIncrByFloat() throws ParseErrorException {
-        assertCommandEquals(5.0, array("incrbyfloat", "a", "5"));
-        assertCommandEquals(11.01, array("incrbyfloat", "a", "6.01"));
-        assertCommandEquals(9.51, array("incrbyfloat", "a", "-1.5"));
+        assertCommandEquals("5", array("incrbyfloat", "a", "5"));
+        assertCommandEquals("11.01", array("incrbyfloat", "a", "6.01"));
+        assertCommandEquals("9.51", array("incrbyfloat", "a", "-1.5"));
         assertCommandOK(array("set", "a", "b"));
         assertCommandError(array("incrbyfloat", "a", "1"));
     }
@@ -283,6 +283,15 @@ public class TestRedisOperationExecutor {
         assertCommandOK(array("hmset","h", "a", "v1", "b", "v2"));
         assertCommandEquals(1, array("del", "h"));
         assertCommandArrayEquals(nullArray(), array("hmget", "h", "a"));
+    }
+
+    @Test
+    public void testHset() {
+        assertCommandEquals(2, array("hset", "h", "a", "v1", "b", "v2"));
+        assertCommandEquals(1, array("hset", "h", "a", "v1", "c", "v3"));
+        assertCommandArrayEquals(array("v1"), array("hmget", "h", "a"));
+        assertCommandArrayEquals(array("v2"), array("hmget", "h", "b"));
+        assertCommandArrayEquals(array("v3"), array("hmget", "h", "c"));
     }
 
     @Test
@@ -437,6 +446,16 @@ public class TestRedisOperationExecutor {
         assertCommandEquals(1, array("hset", "old", "a", "1"));
         assertCommandOK(array("rename", "old", "new"));
         assertCommandEquals("1", array("hget", "new", "a"));
+        assertCommandNull(array("get", "old"));
+    }
+
+    @Test
+    public void testRenameHashWithExistingValues() {
+        assertCommandEquals(1, array("hset", "old", "a", "1"));
+        assertCommandEquals(1, array("hset", "new", "z", "2"));
+        assertCommandOK(array("rename", "old", "new"));
+        assertCommandEquals("1", array("hget", "new", "a"));
+        assertCommandNull(array("hget", "new", "z"));
         assertCommandNull(array("get", "old"));
     }
 
