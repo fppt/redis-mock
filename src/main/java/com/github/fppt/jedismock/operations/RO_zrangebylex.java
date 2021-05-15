@@ -26,12 +26,14 @@ class RO_zrangebylex extends AbstractRedisOperation {
         LinkedHashMap<Slice, Double> map = getDataFromBase(key, new LinkedHashMap<>());
 
         String start = params().get(1).toString();
-        if (!validateStart(start)) 
+        if (!validateStart(start)) {
             return buildErrorResponse("start");
+        }
 
         String end = params().get(2).toString();
-        if (!validateEnd(end)) 
+        if (!validateEnd(end)) {
             return buildErrorResponse("end");
+        }
 
         return Response.array(doProcess(map, start, end));
     }
