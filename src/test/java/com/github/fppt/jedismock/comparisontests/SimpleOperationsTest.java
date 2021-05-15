@@ -566,60 +566,6 @@ public class SimpleOperationsTest {
     }
 
     @TestTemplate
-    public void scanReturnsAllKey(Jedis jedis) {
-
-        jedis.flushDB();
-
-        String key = "scankey:111";
-        String key2 = "scankey:222";
-        String value = "myvalue";
-        jedis.set(key, value);
-        jedis.set(key2, value);
-
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START);
-
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
-        assertEquals(2, result.getResult().size());
-        assertTrue(result.getResult().contains(key));
-        assertTrue(result.getResult().contains(key2));
-    }
-
-    @TestTemplate
-    public void scanReturnsMatchingKey(Jedis jedis) {
-
-        jedis.flushDB();
-
-        String key = "scankeymatch:111";
-        String key2 = "scankeymatch:222";
-        String value = "myvalue";
-        jedis.set(key, value);
-        jedis.set(key2, value);
-
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
-                new ScanParams().match("scankeymatch:1*"));
-
-        assertEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
-        assertEquals(1, result.getResult().size());
-        assertTrue(result.getResult().contains(key));
-    }
-
-    @TestTemplate
-    public void scanIterates(Jedis jedis) {
-
-        jedis.flushDB();
-
-        String value = "myvalue";
-        for (int i = 0; i < 20; i++) {
-            jedis.set("scankeyi:" + i, value);
-        }
-
-        ScanResult<String> result = jedis.scan(ScanParams.SCAN_POINTER_START,
-                new ScanParams().match("scankeyi:1*").count(10));
-
-        assertNotEquals(ScanParams.SCAN_POINTER_START, result.getCursor());
-    }
-
-    @TestTemplate
     public void sscanReturnsAllValues(Jedis jedis) {
 
         jedis.flushDB();
