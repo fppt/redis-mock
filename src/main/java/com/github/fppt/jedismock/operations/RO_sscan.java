@@ -21,7 +21,6 @@ class RO_sscan extends RO_scan {
     void doOptionalWork() {
         this.keySlice = params().get(0);
         this.cursorSlice = params().get(1);
-        this.size = base().keys().size();
     }
 
     @Override
