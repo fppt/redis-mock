@@ -69,22 +69,23 @@ public class TestHScan {
     @TestTemplate
     public void hscanIterates(Jedis jedis) {
         Map<String, String> expected = new HashMap<>();
-        for (int i = 0; i < 45; i++) {
+        for (int i = 0; i < 1024; i++) {
             jedis.hset(key, "hkey" + i, "hval" + i);
             expected.put("hkey" + i, "hval" + i);
         }
         String cursor = ScanParams.SCAN_POINTER_START;
         Map<String, String> results = new HashMap<>();
-        int count = 5;
+        int count = 0;
         do {
             ScanResult<Map.Entry<String, String>> result = jedis.hscan(key, cursor);
             cursor = result.getCursor();
             for (Map.Entry<String, String> entry : result.getResult()) {
                 assertNull(results.put(entry.getKey(), entry.getValue()));
             }
+            count++;
         } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
         assertEquals(expected, results);
-        assertEquals(5, count);
+        assertTrue(count > 1);
     }
 
 }

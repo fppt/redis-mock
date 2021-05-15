@@ -82,7 +82,7 @@ public class TestSScan {
             count++;
         } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
         assertEquals(new HashSet<>(Arrays.asList(values)), results);
-        assertEquals(5, count);
+        assertTrue(count > 1);
 
     }
 }
