@@ -60,7 +60,7 @@ public class AdvanceOperationsTest {
         subsciberThread.submit(() -> subscriber.subscribe(mockSubscriber, channel));
 
         //Give some time to subscribe
-        Thread.sleep(100);
+        Thread.sleep(500);
 
         //publish message
         jedis.publish(channel, message);
